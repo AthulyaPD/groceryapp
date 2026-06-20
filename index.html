@@ -3,244 +3,356 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mom's Kaggle Grocery App</title>
+    <title>Smart Multi-Source Grocery App</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background-color: #f4f6f8; padding-bottom: 90px; }
-        header { background: #4CAF50; color: white; text-align: center; padding: 15px 10px; position: sticky; top: 0; z-index: 10; }
-        .search-container { padding: 10px 15px; background: #fff; border-bottom: 1px solid #edf0f2; }
-        #search-bar { width: 100%; padding: 12px; font-size: 1rem; border: 2px solid #e0e0e0; border-radius: 8px; outline: none; }
-        #search-bar:focus { border-color: #4CAF50; }
-        .category-section h2 { font-size: 0.95rem; text-transform: uppercase; color: #2E7D32; padding: 15px 15px 5px 15px; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; background: white; padding: 14px 15px; border-bottom: 1px solid #edf0f2; }
-        .item-name { font-size: 1.05rem; padding-right: 10px; line-height: 1.3; }
-        .item-brand { font-size: 0.8rem; color: #777; display: block; margin-top: 2px; text-transform: uppercase; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #0b0f19; color: #f1f5f9; padding-bottom: 110px; }
+        
+        /* Premium Vercel Style Header */
+        header { 
+            background: #111827; 
+            border-bottom: 1px solid #1f2937;
+            text-align: center; 
+            padding: 24px 15px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 10;
+        }
+        header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; color: #fff; }
+        header p { font-size: 0.85rem; color: #9ca3af; margin-top: 4px; }
+        
+        /* Sleek Search Bar */
+        .search-container { padding: 16px; position: relative; z-index: 11; background: #0b0f19; }
+        #search-bar { 
+            width: 100%; 
+            padding: 14px 16px 14px 42px; 
+            font-size: 0.95rem; 
+            background: #1f2937;
+            color: white;
+            border: 1px solid #374151; 
+            border-radius: 12px; 
+            outline: none; 
+            transition: all 0.2s ease;
+        }
+        #search-bar:focus { border-color: #10b981; background: #111827; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); }
+        .search-container::before {
+            content: "🔍";
+            position: absolute;
+            left: 30px;
+            top: 29px;
+            font-size: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Category Titles */
+        .category-section h2 { 
+            font-size: 0.85rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            color: #10b981; 
+            padding: 16px 20px 8px 20px; 
+            font-weight: 700;
+        }
+        
+        /* Modern Glass Cards */
+        .item-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: #111827; 
+            padding: 16px 20px; 
+            margin: 0 16px 8px 16px;
+            border-radius: 14px;
+            border: 1px solid #1f2937;
+        }
+        .item-name { font-size: 1rem; font-weight: 500; color: #f9fafb; line-height: 1.4; }
+        .item-brand { font-size: 0.75rem; color: #6b7280; display: block; margin-top: 2px; text-transform: uppercase; font-weight: 600; }
+        
+        /* Quantity Counter */
         .counter { display: flex; align-items: center; gap: 12px; }
-        .counter button { width: 40px; height: 40px; font-size: 1.4rem; border: none; background-color: #e8f5e9; color: #2E7D32; border-radius: 8px; cursor: pointer; }
-        .qty-count { font-size: 1.1rem; font-weight: bold; min-width: 24px; text-align: center; }
-        footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 12px 15px; box-shadow: 0 -4px 10px rgba(0,0,0,0.06); z-index: 10; }
-        #send-btn { width: 100%; padding: 16px; background-color: #25D366; color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; }
-        .loading { text-align: center; padding: 40px; font-size: 1.2rem; color: #666; }
+        .counter button { 
+            width: 36px; 
+            height: 36px; 
+            font-size: 1.2rem; 
+            font-weight: 600;
+            border: none; 
+            background-color: #1f2937; 
+            color: #f3f4f6; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .counter button.plus { background-color: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .counter button:active { transform: scale(0.92); }
+        .qty-count { font-size: 1rem; font-weight: 700; min-width: 24px; text-align: center; color: #fff; }
+        
+        /* Floating Send Bar */
+        footer { 
+            position: fixed; 
+            bottom: 0; 
+            width: 100%; 
+            background: #111827; 
+            padding: 16px 20px; 
+            border-top: 1px solid #1f2937;
+            z-index: 10; 
+        }
+        #send-btn { 
+            width: 100%; 
+            padding: 16px; 
+            background-color: #25D366; 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 1rem; 
+            font-weight: 700; 
+            cursor: pointer;
+        }
+        #send-btn:active { transform: scale(0.99); opacity: 0.9; }
+        .loading { text-align: center; padding: 40px; font-size: 1rem; color: #9ca3af; }
     </style>
 </head>
 <body>
     <header>
         <h1>🛒 Smart Grocery List</h1>
+        <p>Unified catalog: BigBasket, DMart & Blinkit</p>
     </header>
 
     <div class="search-container">
-        <input type="text" id="search-bar" placeholder="🔍 Search 28,000+ items (e.g. Atta, Dahi)..." oninput="filterItems()">
+        <input type="text" id="search-bar" placeholder="Search brands, items, or shops..." oninput="filterItems()">
     </div>
 
     <main id="grocery-container">
-        <div class="loading">Loading Kaggle Dataset...</div>
+        <div class="loading">Parsing master database...</div>
     </main>
 
     <footer>
-        <button id="send-btn" onclick="sendToWhatsApp()">💬 Send to WhatsApp</button>
+        <button id="send-btn" onclick="sendToWhatsApp()">💬 Send Order via WhatsApp</button>
     </footer>
 
     <script>
-    let groceryItems = [];
-    let cart = {};
-    let searchQuery = "";
-    let historyFrequency = JSON.parse(localStorage.getItem('groceryHistory')) || {};
+        let groceryItems = [];
+        let cart = {};
+        let searchQuery = "";
+        let historyFrequency = JSON.parse(localStorage.getItem('megaGroceryHistory')) || {};
 
-    // 1. Crash-Proof, lightning-fast CSV Parser (replaces slow RegEx lookaheads)
-    function fastCSVParse(text) {
-        let lines = text.split('\n');
-        if (lines.length === 0) return [];
+        // Ultra-Fast Stream Reader for Large Merged CSV File
+        function fastCSVParse(text) {
+            let lines = text.split('\n');
+            if (lines.length === 0) return [];
 
-        // Clean headers to find correct index numbers
-        let headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/^"|"$/g, ''));
-        let prodIndex = headers.indexOf('product');
-        let catIndex = headers.indexOf('category');
-        let brandIndex = headers.indexOf('brand');
+            let headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+            let idIdx = headers.indexOf('id');
+            let nameIdx = headers.indexOf('name');
+            let catIdx = headers.indexOf('category');
+            let brandIdx = headers.indexOf('brand');
+            let tagsIdx = headers.indexOf('tags');
 
-        // Fallbacks if header names are slightly different in Kaggle
-        if (prodIndex === -1) prodIndex = 1; 
-        if (catIndex === -1) catIndex = 2;
-        if (brandIndex === -1) brandIndex = 3;
+            let items = [];
+            for (let i = 1; i < lines.length; i++) {
+                let line = lines[i].trim();
+                if (!line) continue;
 
-        let items = [];
+                let row = [];
+                let inQuotes = false;
+                let cell = "";
 
-        // Fast char-by-char loop for every row
-        for (let i = 1; i < lines.length; i++) {
-            let line = lines[i].trim();
-            if (!line) continue;
+                for (let j = 0; j < line.length; j++) {
+                    let char = line[j];
+                    if (char === '"') { inQuotes = !inQuotes; }
+                    else if (char === ',' && !inQuotes) { row.push(cell.trim()); cell = ""; }
+                    else { cell += char; }
+                }
+                row.push(cell.trim());
 
-            let row = [];
-            let inQuotes = false;
-            let currentCell = "";
-
-            for (let j = 0; j < line.length; j++) {
-                let char = line[j];
-                if (char === '"') {
-                    inQuotes = !inQuotes; // Toggle quotes flag
-                } else if (char === ',' && !inQuotes) {
-                    row.push(currentCell.trim());
-                    currentCell = "";
-                } else {
-                    currentCell += char;
+                if (row[nameIdx]) {
+                    items.push({
+                        id: row[idIdx] || 'item_' + i,
+                        name: row[nameIdx].replace(/^"|"$/g, ''),
+                        category: row[catIdx] ? row[catIdx].replace(/^"|"$/g, '') : 'General',
+                        brand: row[brandIndex] ? row[brandIdx].replace(/^"|"$/g, '') : 'Generic',
+                        tags: row[tagsIdx] ? row[tagsIdx].toLowerCase() : ''
+                    });
                 }
             }
-            row.push(currentCell.trim()); // Push last item
-
-            let name = row[prodIndex];
-            let category = row[catIndex];
-            let brand = row[brandIndex] || "Generic";
-
-            if (name && category) {
-                items.push({
-                    id: 'item_' + i,
-                    name: name,
-                    category: category,
-                    brand: brand
-                });
-            }
+            return items;
         }
-        return items;
-    }
 
-    // 2. Fetch logic with case-insensitive fallbacks for Vercel servers
-    async function loadLocalCSV() {
-        const fileNames = ['BigBasket Products.csv', 'bigbasket products.csv', 'Bigbasket Products.csv'];
-        let loaded = false;
-
-        for (let fileName of fileNames) {
+        async function loadMasterDataset() {
             try {
-                const response = await fetch(fileName);
-                if (!response.ok) continue; // Try next casing variation if 404
-                
+                const response = await fetch('merged_grocery_dataset.csv');
+                if (!response.ok) throw new Error("File missing");
                 const data = await response.text();
                 groceryItems = fastCSVParse(data);
-                
-                if (groceryItems.length > 0) {
-                    loaded = true;
-                    break; 
-                }
+                renderItems();
             } catch (e) {
-                console.log("Failed fetching filename variant:", fileName);
+                document.getElementById('grocery-container').innerHTML = `
+                    <div class="loading" style="color:#ef4444;">
+                        ❌ Master dataset file missing.<br>
+                        Run 'merge_groceries.py' inside the folder first!
+                    </div>`;
             }
         }
 
-        if (loaded) {
-            renderItems();
-        } else {
-            document.getElementById('grocery-container').innerHTML = `
-                <div class="loading" style="color:red; font-size:1rem; padding:20px;">
-                    ❌ Database Load Failure<br><br>
-                    <small style="color:#555; text-align:left; display:block;">
-                        1. Ensure <b>BigBasket Products.csv</b> is directly inside your main folder (not hidden inside a folder of the same name).<br><br>
-                        2. Ensure your Vercel drag-and-drop included the CSV alongside your index.html.
-                    </small>
-                </div>`;
-        }
+        function renderItems() {
+    const container = document.getElementById('grocery-container');
+    container.innerHTML = '';
+
+    // 1. Frequently ordered items stay at the top
+    const frequentItems = groceryItems
+        .filter(item => historyFrequency[item.id] && historyFrequency[item.id] > 0)
+        .sort((a, b) => historyFrequency[b.id] - historyFrequency[a.id])
+        .slice(0, 4);
+
+    if (frequentItems.length > 0 && !searchQuery) {
+        renderCategorySection("⭐️ Frequently Ordered", frequentItems, container);
     }
 
-    function renderItems() {
-        const container = document.getElementById('grocery-container');
-        container.innerHTML = '';
+    // 2. Intelligent Search Filter and Sorter
+    if (searchQuery.length >= 2) {
+        let matches = [];
+        let q = searchQuery.toLowerCase();
 
-        // Frequently ordered items display first
-        const frequentItems = groceryItems
-            .filter(item => historyFrequency[item.id] && historyFrequency[item.id] > 0)
-            .sort((a, b) => historyFrequency[b.id] - historyFrequency[a.id])
-            .slice(0, 4);
-
-        if (frequentItems.length > 0 && !searchQuery) {
-            renderCategorySection("⭐️ Frequently Ordered", frequentItems, container);
+        // Step A: Collect all basic text matches across the 3 datasets
+        for (let i = 0; i < groceryItems.length; i++) {
+            let item = groceryItems[i];
+            if (item.name.toLowerCase().includes(q) || item.tags.includes(q)) {
+                matches.push(item);
+            }
         }
 
-        // Live filtration loop optimized for mobile screens
-        if (searchQuery.length >= 2) {
-            let matches = [];
-            let q = searchQuery.toLowerCase();
+        // Step B: Smart Relevance Ranking System
+        matches.sort((a, b) => {
+            let nameA = a.name.toLowerCase();
+            let nameB = b.name.toLowerCase();
 
-            for (let i = 0; i < groceryItems.length; i++) {
-                let item = groceryItems[i];
-                if (item.name.toLowerCase().includes(q) || 
-                    item.category.toLowerCase().includes(q) || 
-                    item.brand.toLowerCase().includes(q)) {
-                    matches.push(item);
-                    if (matches.length >= 25) break; // Cuts off early to keep UI buttery smooth
-                }
+            // Condition 1: Does the product name START with the exact search term? (Highest Priority)
+            let startsA = nameA.startsWith(q) ? 1 : 0;
+            let startsB = nameB.startsWith(q) ? 1 : 0;
+            if (startsA !== startsB) return startsB - startsA; 
+
+            // Condition 2: Is the search term a whole standalone word in the title?
+            let wordRegex = new RegExp('\\b' + q + '\\b');
+            let wordA = wordRegex.test(nameA) ? 1 : 0;
+            let wordB = wordRegex.test(nameB) ? 1 : 0;
+            if (wordA !== wordB) return wordB - wordA;
+
+            // Condition 3: Shorter item descriptions win (e.g., "Tomato 1kg" beats "Organic Creamy Tomato Pasta Bake")
+            return nameA.length - nameB.length;
+        });
+
+        // Step C: Slice the top 30 cleanest hits so the interface doesn't lag
+        let cleanMatches = matches.slice(0, 30);
+
+        const categories = [...new Set(cleanMatches.map(item => item.category))];
+        categories.forEach(category => {
+            const itemsInCat = cleanMatches.filter(item => item.category === category);
+            renderCategorySection(category, itemsInCat, container);
+        });
+
+        if (matches.length === 0) {
+            container.innerHTML = '<div class="loading">No matching items found across directories.</div>';
+        }
+    } else if (!frequentItems.length) {
+        container.innerHTML = '<div class="loading">Type at least 2 letters to perform master search...</div>';
+    }
+}
+            const container = document.getElementById('grocery-container');
+            container.innerHTML = '';
+
+            const frequentItems = groceryItems
+                .filter(item => historyFrequency[item.id] && historyFrequency[item.id] > 0)
+                .sort((a, b) => historyFrequency[b.id] - historyFrequency[a.id])
+                .slice(0, 4);
+
+            if (frequentItems.length > 0 && !searchQuery) {
+                renderCategorySection("⭐️ Frequently Ordered", frequentItems, container);
             }
 
-            const categories = [...new Set(matches.map(item => item.category))];
-            categories.forEach(category => {
-                const itemsInCat = matches.filter(item => item.category === category);
-                renderCategorySection(category, itemsInCat, container);
+            if (searchQuery.length >= 2) {
+                let matches = [];
+                for (let i = 0; i < groceryItems.length; i++) {
+                    let item = groceryItems[i];
+                    if (item.name.toLowerCase().includes(searchQuery) || item.tags.includes(searchQuery)) {
+                        matches.push(item);
+                        if (matches.length >= 30) break; 
+                    }
+                }
+
+                const categories = [...new Set(matches.map(item => item.category))];
+                categories.forEach(category => {
+                    const itemsInCat = matches.filter(item => item.category === category);
+                    renderCategorySection(category, itemsInCat, container);
+                });
+
+                if (matches.length === 0) {
+                    container.innerHTML = '<div class="loading">No matching items found across directories.</div>';
+                }
+            } else if (!frequentItems.length) {
+                container.innerHTML = '<div class="loading">Type at least 2 letters to perform master search...</div>';
+            }
+        }
+
+        function renderCategorySection(title, items, targetContainer) {
+            const catDiv = document.createElement('div');
+            catDiv.className = 'category-section';
+            catDiv.innerHTML = `<h2>${title}</h2>`;
+            
+            items.forEach(item => {
+                const qty = cart[item.id] || 0;
+                const itemRow = document.createElement('div');
+                itemRow.className = 'item-row';
+                itemRow.innerHTML = `
+                    <div>
+                        <span class="item-name">${item.name}</span>
+                        <span class="item-brand">${item.brand}</span>
+                    </div>
+                    <div class="counter">
+                        <button onclick="updateQty('${item.id}', -1)">-</button>
+                        <span class="qty-count">${qty}</span>
+                        <button class="plus" onclick="updateQty('${item.id}', 1)">+</button>
+                    </div>`;
+                catDiv.appendChild(itemRow);
+            });
+            targetContainer.appendChild(catDiv);
+        }
+
+        function updateQty(id, change) {
+            if (!cart[id]) cart[id] = 0;
+            cart[id] += change;
+            if (cart[id] <= 0) delete cart[id];
+            renderItems();
+        }
+
+        function filterItems() {
+            searchQuery = document.getElementById('search-bar').value.toLowerCase().trim();
+            renderItems();
+        }
+
+        function sendToWhatsApp() {
+            let orderText = "📝 *COMBINED SUPERMARKET ORDER*\n-------------------------\n";
+            let hasItems = false;
+
+            groceryItems.forEach(item => {
+                if (cart[item.id]) {
+                    orderText += `✅ ${item.name} [${item.brand}] → *Qty: ${cart[item.id]}*\n`;
+                    hasItems = true;
+                    historyFrequency[item.id] = (historyFrequency[item.id] || 0) + 1;
+                }
             });
 
-            if (matches.length === 0) {
-                container.innerHTML = '<div class="loading">No matching items found. Try another spelling!</div>';
-            }
-        } else if (!frequentItems.length) {
-            container.innerHTML = '<div class="loading">Type 2 or more letters above to search the store...</div>';
+            if (!hasItems) { alert("Please select items first!"); return; }
+            orderText += "-------------------------\n Please package and deliver. Thank you!";
+
+            localStorage.setItem('megaGroceryHistory', JSON.stringify(historyFrequency));
+            window.open(`https://wa.me/?text=${encodeURIComponent(orderText)}`, '_blank');
+            cart = {};
+            renderItems();
         }
-    }
 
-    function renderCategorySection(title, items, targetContainer) {
-        const catDiv = document.createElement('div');
-        catDiv.className = 'category-section';
-        catDiv.innerHTML = `<h2>${title}</h2>`;
-        
-        items.forEach(item => {
-            const qty = cart[item.id] || 0;
-            const itemRow = document.createElement('div');
-            itemRow.className = 'item-row';
-            itemRow.innerHTML = `
-                <div>
-                    <span class="item-name">${item.name}</span>
-                    <span class="item-brand">${item.brand}</span>
-                </div>
-                <div class="counter">
-                    <button onclick="updateQty('${item.id}', -1)">-</button>
-                    <span class="qty-count">${qty}</span>
-                    <button onclick="updateQty('${item.id}', 1)">+</button>
-                </div>`;
-            catDiv.appendChild(itemRow);
-        });
-        targetContainer.appendChild(catDiv);
-    }
-
-    function updateQty(id, change) {
-        if (!cart[id]) cart[id] = 0;
-        cart[id] += change;
-        if (cart[id] <= 0) delete cart[id];
-        renderItems();
-    }
-
-    function filterItems() {
-        searchQuery = document.getElementById('search-bar').value.toLowerCase().trim();
-        renderItems();
-    }
-
-    function sendToWhatsApp() {
-        let orderText = "📝 *NEW GROCERY ORDER*\n-------------------------\n";
-        let hasItems = false;
-
-        groceryItems.forEach(item => {
-            if (cart[item.id]) {
-                orderText += `✅ ${item.name} (${item.brand}) → *Qty: ${cart[item.id]}*\n`;
-                hasItems = true;
-                historyFrequency[item.id] = (historyFrequency[item.id] || 0) + 1;
-            }
-        });
-
-        if (!hasItems) { alert("Please select items first!"); return; }
-        orderText += "-------------------------\n Please deliver as soon as possible. Thanks!";
-
-        localStorage.setItem('groceryHistory', JSON.stringify(historyFrequency));
-        window.open(`https://wa.me/?text=${encodeURIComponent(orderText)}`, '_blank');
-        cart = {};
-        renderItems();
-    }
-
-    // Initialize 
-    loadLocalCSV();
-</script>
+        loadMasterDataset();
+    </script>
 </body>
 </html>
