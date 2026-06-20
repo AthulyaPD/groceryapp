@@ -132,227 +132,193 @@
         <button id="send-btn" onclick="sendToWhatsApp()">💬 Send Order via WhatsApp</button>
     </footer>
 
-    <script>
-        let groceryItems = [];
-        let cart = {};
-        let searchQuery = "";
-        let historyFrequency = JSON.parse(localStorage.getItem('megaGroceryHistory')) || {};
+   
+<script>
+    let groceryItems = [];
+    let cart = {};
+    let searchQuery = "";
+    let historyFrequency = JSON.parse(localStorage.getItem('megaGroceryHistory')) || {};
 
-        // Ultra-Fast Stream Reader for Large Merged CSV File
-        function fastCSVParse(text) {
-            let lines = text.split('\n');
-            if (lines.length === 0) return [];
+    // Safe, fault-tolerant CSV Parser
+    function safeCSVParse(text) {
+        let lines = text.split('\n');
+        if (lines.length <= 1) return [];
 
-            let headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-            let idIdx = headers.indexOf('id');
-            let nameIdx = headers.indexOf('name');
-            let catIdx = headers.indexOf('category');
-            let brandIdx = headers.indexOf('brand');
-            let tagsIdx = headers.indexOf('tags');
-
-            let items = [];
-            for (let i = 1; i < lines.length; i++) {
-                let line = lines[i].trim();
-                if (!line) continue;
-
-                let row = [];
-                let inQuotes = false;
-                let cell = "";
-
-                for (let j = 0; j < line.length; j++) {
-                    let char = line[j];
-                    if (char === '"') { inQuotes = !inQuotes; }
-                    else if (char === ',' && !inQuotes) { row.push(cell.trim()); cell = ""; }
-                    else { cell += char; }
-                }
-                row.push(cell.trim());
-
-                if (row[nameIdx]) {
-                    items.push({
-                        id: row[idIdx] || 'item_' + i,
-                        name: row[nameIdx].replace(/^"|"$/g, ''),
-                        category: row[catIdx] ? row[catIdx].replace(/^"|"$/g, '') : 'General',
-                        brand: row[brandIndex] ? row[brandIdx].replace(/^"|"$/g, '') : 'Generic',
-                        tags: row[tagsIdx] ? row[tagsIdx].toLowerCase() : ''
-                    });
-                }
-            }
-            return items;
-        }
-
-        async function loadMasterDataset() {
-            try {
-                const response = await fetch('merged_grocery_dataset.csv');
-                if (!response.ok) throw new Error("File missing");
-                const data = await response.text();
-                groceryItems = fastCSVParse(data);
-                renderItems();
-            } catch (e) {
-                document.getElementById('grocery-container').innerHTML = `
-                    <div class="loading" style="color:#ef4444;">
-                        ❌ Master dataset file missing.<br>
-                        Run 'merge_groceries.py' inside the folder first!
-                    </div>`;
-            }
-        }
-
-        function renderItems() {
-    const container = document.getElementById('grocery-container');
-    container.innerHTML = '';
-
-    // 1. Frequently ordered items stay at the top
-    const frequentItems = groceryItems
-        .filter(item => historyFrequency[item.id] && historyFrequency[item.id] > 0)
-        .sort((a, b) => historyFrequency[b.id] - historyFrequency[a.id])
-        .slice(0, 4);
-
-    if (frequentItems.length > 0 && !searchQuery) {
-        renderCategorySection("⭐️ Frequently Ordered", frequentItems, container);
-    }
-
-    // 2. Intelligent Search Filter and Sorter
-    if (searchQuery.length >= 2) {
-        let matches = [];
-        let q = searchQuery.toLowerCase();
-
-        // Step A: Collect all basic text matches across the 3 datasets
-        for (let i = 0; i < groceryItems.length; i++) {
-            let item = groceryItems[i];
-            if (item.name.toLowerCase().includes(q) || item.tags.includes(q)) {
-                matches.push(item);
-            }
-        }
-
-        // Step B: Smart Relevance Ranking System
-        matches.sort((a, b) => {
-            let nameA = a.name.toLowerCase();
-            let nameB = b.name.toLowerCase();
-
-            // Condition 1: Does the product name START with the exact search term? (Highest Priority)
-            let startsA = nameA.startsWith(q) ? 1 : 0;
-            let startsB = nameB.startsWith(q) ? 1 : 0;
-            if (startsA !== startsB) return startsB - startsA; 
-
-            // Condition 2: Is the search term a whole standalone word in the title?
-            let wordRegex = new RegExp('\\b' + q + '\\b');
-            let wordA = wordRegex.test(nameA) ? 1 : 0;
-            let wordB = wordRegex.test(nameB) ? 1 : 0;
-            if (wordA !== wordB) return wordB - wordA;
-
-            // Condition 3: Shorter item descriptions win (e.g., "Tomato 1kg" beats "Organic Creamy Tomato Pasta Bake")
-            return nameA.length - nameB.length;
-        });
-
-        // Step C: Slice the top 30 cleanest hits so the interface doesn't lag
-        let cleanMatches = matches.slice(0, 30);
-
-        const categories = [...new Set(cleanMatches.map(item => item.category))];
-        categories.forEach(category => {
-            const itemsInCat = cleanMatches.filter(item => item.category === category);
-            renderCategorySection(category, itemsInCat, container);
-        });
-
-        if (matches.length === 0) {
-            container.innerHTML = '<div class="loading">No matching items found across directories.</div>';
-        }
-    } else if (!frequentItems.length) {
-        container.innerHTML = '<div class="loading">Type at least 2 letters to perform master search...</div>';
-    }
-}
-            const container = document.getElementById('grocery-container');
-            container.innerHTML = '';
-
-            const frequentItems = groceryItems
-                .filter(item => historyFrequency[item.id] && historyFrequency[item.id] > 0)
-                .sort((a, b) => historyFrequency[b.id] - historyFrequency[a.id])
-                .slice(0, 4);
-
-            if (frequentItems.length > 0 && !searchQuery) {
-                renderCategorySection("⭐️ Frequently Ordered", frequentItems, container);
-            }
-
-            if (searchQuery.length >= 2) {
-                let matches = [];
-                for (let i = 0; i < groceryItems.length; i++) {
-                    let item = groceryItems[i];
-                    if (item.name.toLowerCase().includes(searchQuery) || item.tags.includes(searchQuery)) {
-                        matches.push(item);
-                        if (matches.length >= 30) break; 
-                    }
-                }
-
-                const categories = [...new Set(matches.map(item => item.category))];
-                categories.forEach(category => {
-                    const itemsInCat = matches.filter(item => item.category === category);
-                    renderCategorySection(category, itemsInCat, container);
-                });
-
-                if (matches.length === 0) {
-                    container.innerHTML = '<div class="loading">No matching items found across directories.</div>';
-                }
-            } else if (!frequentItems.length) {
-                container.innerHTML = '<div class="loading">Type at least 2 letters to perform master search...</div>';
-            }
+        // Clean headers to lower case
+        let headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/^"|"$/g, ''));
         
+        // Find exact positions dynamically
+        let idIdx = headers.indexOf('id');
+        let nameIdx = headers.indexOf('name');
+        let catIdx = headers.indexOf('category');
+        let brandIdx = headers.indexOf('brand');
+        let tagsIdx = headers.indexOf('tags');
 
-        function renderCategorySection(title, items, targetContainer) {
-            const catDiv = document.createElement('div');
-            catDiv.className = 'category-section';
-            catDiv.innerHTML = `<h2>${title}</h2>`;
-            
-            items.forEach(item => {
-                const qty = cart[item.id] || 0;
-                const itemRow = document.createElement('div');
-                itemRow.className = 'item-row';
-                itemRow.innerHTML = `
-                    <div>
-                        <span class="item-name">${item.name}</span>
-                        <span class="item-brand">${item.brand}</span>
-                    </div>
-                    <div class="counter">
-                        <button onclick="updateQty('${item.id}', -1)">-</button>
-                        <span class="qty-count">${qty}</span>
-                        <button class="plus" onclick="updateQty('${item.id}', 1)">+</button>
-                    </div>`;
-                catDiv.appendChild(itemRow);
-            });
-            targetContainer.appendChild(catDiv);
+        // Smart fallbacks if indexes don't match exactly
+        if (idIdx === -1) idIdx = 0;
+        if (nameIdx === -1) nameIdx = 1;
+        if (catIdx === -1) catIdx = 2;
+        if (brandIdx === -1) brandIdx = 3;
+        if (tagsIdx === -1) tagsIdx = 4;
+
+        let items = [];
+        for (let i = 1; i < lines.length; i++) {
+            let line = lines[i].trim();
+            if (!line) continue;
+
+            let row = [];
+            let inQuotes = false;
+            let cell = "";
+
+            for (let j = 0; j < line.length; j++) {
+                let char = line[j];
+                if (char === '"') { inQuotes = !inQuotes; }
+                else if (char === ',' && !inQuotes) { row.push(cell.trim()); cell = ""; }
+                else { cell += char; }
+            }
+            row.push(cell.trim());
+
+            let name = row[nameIdx]?.replace(/^"|"$/g, '');
+            if (name && name !== 'nan') {
+                items.push({
+                    id: row[idIdx] || 'item_' + i,
+                    name: name,
+                    category: row[catIdx]?.replace(/^"|"$/g, '') || 'General Staples',
+                    brand: row[brandIdx]?.replace(/^"|"$/g, '') || 'Generic',
+                    tags: row[tagsIdx] ? row[tagsIdx].toLowerCase() : name.toLowerCase()
+                });
+            }
         }
+        return items;
+    }
 
-        function updateQty(id, change) {
-            if (!cart[id]) cart[id] = 0;
-            cart[id] += change;
-            if (cart[id] <= 0) delete cart[id];
+    async function loadMasterDataset() {
+        try {
+            // Fetch file case-insensitively 
+            const response = await fetch('merged_grocery_dataset.csv');
+            if (!response.ok) throw new Error();
+            const data = await response.text();
+            groceryItems = safeCSVParse(data);
             renderItems();
+        } catch (e) {
+            document.getElementById('grocery-container').innerHTML = `
+                <div class="loading" style="color:#ef4444; font-size: 0.95rem; text-align: left; line-height: 1.5;">
+                    ❌ Vercel Deployment Link Sync Error<br><br>
+                     Vercel cannot see your data file yet. Please complete these checks:<br><br>
+                    1. Verify that <b>merged_grocery_dataset.csv</b> is sitting in your <b>D:\\GroceryApp</b> folder right next to index.html.<br><br>
+                    2. Upload <b>both</b> files to your GitHub repository together so Vercel can fetch them.
+                </div>`;
+        }
+    }
+
+    function renderItems() {
+        const container = document.getElementById('grocery-container');
+        container.innerHTML = '';
+
+        const frequentItems = groceryItems
+            .filter(item => historyFrequency[item.id] && historyFrequency[item.id] > 0)
+            .sort((a, b) => historyFrequency[b.id] - historyFrequency[a.id])
+            .slice(0, 4);
+
+        if (frequentItems.length > 0 && !searchQuery) {
+            renderCategorySection("⭐️ Frequently Ordered", frequentItems, container);
         }
 
-        function filterItems() {
-            searchQuery = document.getElementById('search-bar').value.toLowerCase().trim();
-            renderItems();
-        }
+        if (searchQuery.length >= 2) {
+            let matches = [];
+            let q = searchQuery.toLowerCase();
 
-        function sendToWhatsApp() {
-            let orderText = "📝 *COMBINED SUPERMARKET ORDER*\n-------------------------\n";
-            let hasItems = false;
-
-            groceryItems.forEach(item => {
-                if (cart[item.id]) {
-                    orderText += `✅ ${item.name} [${item.brand}] → *Qty: ${cart[item.id]}*\n`;
-                    hasItems = true;
-                    historyFrequency[item.id] = (historyFrequency[item.id] || 0) + 1;
+            for (let i = 0; i < groceryItems.length; i++) {
+                let item = groceryItems[i];
+                if (item.name.toLowerCase().includes(q) || item.tags.includes(q)) {
+                    matches.push(item);
                 }
+            }
+
+            // Smart relevance sorting (Raw produce targets first)
+            matches.sort((a, b) => {
+                let nameA = a.name.toLowerCase();
+                let nameB = b.name.toLowerCase();
+                let startsA = nameA.startsWith(q) ? 1 : 0;
+                let startsB = nameB.startsWith(q) ? 1 : 0;
+                if (startsA !== startsB) return startsB - startsA;
+                return nameA.length - nameB.length;
             });
 
-            if (!hasItems) { alert("Please select items first!"); return; }
-            orderText += "-------------------------\n Please package and deliver. Thank you!";
+            let cleanMatches = matches.slice(0, 30);
+            const categories = [...new Set(cleanMatches.map(item => item.category))];
+            categories.forEach(category => {
+                const itemsInCat = cleanMatches.filter(item => item.category === category);
+                renderCategorySection(category, itemsInCat, container);
+            });
 
-            localStorage.setItem('megaGroceryHistory', JSON.stringify(historyFrequency));
-            window.open(`https://wa.me/?text=${encodeURIComponent(orderText)}`, '_blank');
-            cart = {};
-            renderItems();
+            if (matches.length === 0) {
+                container.innerHTML = '<div class="loading">No matching items found.</div>';
+            }
+        } else if (!frequentItems.length) {
+            container.innerHTML = '<div class="loading">Type at least 2 letters to perform search...</div>';
         }
+    }
 
-        loadMasterDataset();
-    </script>
+    function renderCategorySection(title, items, targetContainer) {
+        const catDiv = document.createElement('div');
+        catDiv.className = 'category-section';
+        catDiv.innerHTML = `<h2>${title}</h2>`;
+        
+        items.forEach(item => {
+            const qty = cart[item.id] || 0;
+            const itemRow = document.createElement('div');
+            itemRow.className = 'item-row';
+            itemRow.innerHTML = `
+                <div>
+                    <span class="item-name">${item.name}</span>
+                    <span class="item-brand">${item.brand}</span>
+                </div>
+                <div class="counter">
+                    <button onclick="updateQty('${item.id}', -1)">-</button>
+                    <span class="qty-count">${qty}</span>
+                    <button class="plus" onclick="updateQty('${item.id}', 1)">+</button>
+                </div>`;
+            catDiv.appendChild(itemRow);
+        });
+        targetContainer.appendChild(catDiv);
+    }
+
+    function updateQty(id, change) {
+        if (!cart[id]) cart[id] = 0;
+        cart[id] += change;
+        if (cart[id] <= 0) delete cart[id];
+        renderItems();
+    }
+
+    function filterItems() {
+        searchQuery = document.getElementById('search-bar').value.toLowerCase().trim();
+        renderItems();
+    }
+
+    function sendToWhatsApp() {
+        let orderText = "📝 *GROCERY ORDER*\n-------------------------\n";
+        let hasItems = false;
+
+        groceryItems.forEach(item => {
+            if (cart[item.id]) {
+                orderText += `✅ ${item.name} → *Qty: ${cart[item.id]}*\n`;
+                hasItems = true;
+                historyFrequency[item.id] = (historyFrequency[item.id] || 0) + 1;
+            }
+        });
+
+        if (!hasItems) { alert("Please select items first!"); return; }
+        orderText += "-------------------------\n Please deliver as soon as possible. Thanks!";
+
+        localStorage.setItem('megaGroceryHistory', JSON.stringify(historyFrequency));
+        window.open(`https://wa.me/?text=${encodeURIComponent(orderText)}`, '_blank');
+        cart = {};
+        renderItems();
+    }
+
+    loadMasterDataset();
+</script>
+
 </body>
 </html>
