@@ -117,11 +117,11 @@
 <body>
     <header>
         <h1>🛒 Smart Grocery List</h1>
-        <p>Unified catalog: BigBasket, DMart & Blinkit</p>
+        <p>Food, Vegetables & Biscuits Only</p>
     </header>
 
     <div class="search-container">
-        <input type="text" id="search-bar" placeholder="Search brands, items, or shops..." oninput="filterItems()">
+        <input type="text" id="search-bar" placeholder="Search vegetables, biscuits, or rice..." oninput="filterItems()">
     </div>
 
     <main id="grocery-container">
@@ -132,7 +132,6 @@
         <button id="send-btn" onclick="sendToWhatsApp()">💬 Send Order via WhatsApp</button>
     </footer>
 
-   
 <script>
     let groceryItems = [];
     let cart = {};
@@ -144,17 +143,14 @@
         let lines = text.split('\n');
         if (lines.length <= 1) return [];
 
-        // Clean headers to lower case
         let headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/^"|"$/g, ''));
         
-        // Find exact positions dynamically
         let idIdx = headers.indexOf('id');
         let nameIdx = headers.indexOf('name');
         let catIdx = headers.indexOf('category');
         let brandIdx = headers.indexOf('brand');
         let tagsIdx = headers.indexOf('tags');
 
-        // Smart fallbacks if indexes don't match exactly
         if (idIdx === -1) idIdx = 0;
         if (nameIdx === -1) nameIdx = 1;
         if (catIdx === -1) catIdx = 2;
@@ -194,7 +190,6 @@
 
     async function loadMasterDataset() {
         try {
-            // Fetch file case-insensitively 
             const response = await fetch('merged_grocery_dataset.csv');
             if (!response.ok) throw new Error();
             const data = await response.text();
@@ -235,13 +230,19 @@
                 }
             }
 
-            // Smart relevance sorting (Raw produce targets first)
+            // Smart relevance sorting (Prioritizes items starting with the query word)
             matches.sort((a, b) => {
                 let nameA = a.name.toLowerCase();
                 let nameB = b.name.toLowerCase();
+                
                 let startsA = nameA.startsWith(q) ? 1 : 0;
                 let startsB = nameB.startsWith(q) ? 1 : 0;
                 if (startsA !== startsB) return startsB - startsA;
+                
+                let exactWordA = new RegExp('\\b' + q + '\\b').test(nameA) ? 1 : 0;
+                let exactWordB = new RegExp('\\b' + q + '\\b').test(nameB) ? 1 : 0;
+                if (exactWordA !== exactWordB) return exactWordB - exactWordA;
+
                 return nameA.length - nameB.length;
             });
 
@@ -253,7 +254,7 @@
             });
 
             if (matches.length === 0) {
-                container.innerHTML = '<div class="loading">No matching items found.</div>';
+                container.innerHTML = '<div class="loading">No matching food items found.</div>';
             }
         } else if (!frequentItems.length) {
             container.innerHTML = '<div class="loading">Type at least 2 letters to perform search...</div>';
@@ -319,6 +320,5 @@
 
     loadMasterDataset();
 </script>
-
 </body>
 </html>
