@@ -3,213 +3,345 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Multi-Source Grocery App</title>
+    <title>Grocery List App</title>
     <link rel="manifest" href="manifest.json">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: #0b0f19; color: #f1f5f9; padding-bottom: 110px; }
         
-        /* Premium Vercel Style Header */
+        /* Layout Header */
         header { 
             background: #111827; 
             border-bottom: 1px solid #1f2937;
             text-align: center; 
-            padding: 24px 15px; 
+            padding: 20px 15px; 
             position: sticky; 
             top: 0; 
             z-index: 10;
         }
-        header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; color: #fff; }
-        header p { font-size: 0.85rem; color: #9ca3af; margin-top: 4px; }
+        header h1 { font-size: 1.4rem; font-weight: 700; color: #fff; }
         
-        /* Sleek Search Bar */
-        .search-container { padding: 16px; position: relative; z-index: 11; background: #0b0f19; }
-        #search-bar { 
-            width: 100%; 
-            padding: 14px 16px 14px 42px; 
-            font-size: 0.95rem; 
-            background: #1f2937;
-            color: white;
-            border: 1px solid #374151; 
-            border-radius: 12px; 
-            outline: none; 
-            transition: all 0.2s ease;
-        }
-        #search-bar:focus { border-color: #10b981; background: #111827; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); }
-        .search-container::before {
-            content: "🔍";
-            position: absolute;
-            left: 30px;
-            top: 29px;
-            font-size: 1rem;
-            opacity: 0.5;
+        /* Floating Actions Bar */
+        .action-row { display: flex; gap: 10px; padding: 10px 16px 0 16px; background: #0b0f19; }
+        .action-btn {
+            background: #1f2937; color: white; border: 1px solid #374151;
+            padding: 10px 14px; border-radius: 10px; font-size: 0.85rem; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; gap: 6px;
         }
 
-        /* Category Titles */
-        .category-section h2 { 
-            font-size: 0.85rem; 
-            text-transform: uppercase; 
-            letter-spacing: 1px;
-            color: #10b981; 
-            padding: 16px 20px 8px 20px; 
-            font-weight: 700;
+        /* Search Controls */
+        .search-container { padding: 12px 16px; position: relative; z-index: 9; background: #0b0f19; }
+        #search-bar { 
+            width: 100%; padding: 14px 16px 14px 42px; font-size: 0.95rem; 
+            background: #1f2937; color: white; border: 1px solid #374151; 
+            border-radius: 12px; outline: none; transition: all 0.2s ease;
         }
+        #search-bar:focus { border-color: #10b981; background: #111827; }
+        .search-container::before { content: "🔍"; position: absolute; left: 30px; top: 25px; font-size: 1rem; opacity: 0.5; }
+
+        /* Categorization styling */
+        .category-section h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #10b981; padding: 16px 20px 8px 20px; font-weight: 700; }
         
-        /* Modern Glass Cards */
+        /* Master Grid Layout Items */
         .item-row { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background: #111827; 
-            padding: 16px 20px; 
-            margin: 0 16px 8px 16px;
-            border-radius: 14px;
-            border: 1px solid #1f2937;
+            background: #111827; padding: 14px 16px; margin: 0 16px 8px 16px;
+            border-radius: 14px; border: 1px solid #1f2937;
+            display: flex; flex-direction: column; gap: 10px;
         }
-        .item-name { font-size: 1rem; font-weight: 500; color: #f9fafb; line-height: 1.4; }
-        .item-brand { font-size: 0.75rem; color: #6b7280; display: block; margin-top: 2px; text-transform: uppercase; font-weight: 600; }
+        @media(min-width: 400px) {
+            .item-row { flex-direction: row; justify-content: space-between; align-items: center; }
+        }
+        .item-details { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+        .item-title-block { display: flex; flex-direction: column; }
+        .item-name { font-size: 1rem; font-weight: 500; color: #f9fafb; }
+        .item-meta { font-size: 0.75rem; color: #6b7280; margin-top: 2px; }
         
-        /* Quantity Counter */
-        .counter { display: flex; align-items: center; gap: 12px; }
+        /* Control adjusters */
+        .controls-wrapper { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
+        .unit-selector {
+            background: #1f2937; color: #9ca3af; border: 1px solid #374151;
+            padding: 6px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; outline: none;
+        }
+        .unit-selector:focus { border-color: #10b981; }
+        
+        /* Counter Engine */
+        .counter { display: flex; align-items: center; gap: 10px; }
         .counter button { 
-            width: 36px; 
-            height: 36px; 
-            font-size: 1.2rem; 
-            font-weight: 600;
-            border: none; 
-            background-color: #1f2937; 
-            color: #f3f4f6; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 34px; height: 34px; font-size: 1.2rem; font-weight: 600; border: none; 
+            background-color: #1f2937; color: #f3f4f6; border-radius: 8px; cursor: pointer;
         }
         .counter button.plus { background-color: rgba(16, 185, 129, 0.2); color: #34d399; }
-        .counter button:active { transform: scale(0.92); }
-        .qty-count { font-size: 1rem; font-weight: 700; min-width: 24px; text-align: center; color: #fff; }
+        .qty-count { font-size: 0.95rem; font-weight: 700; min-width: 24px; text-align: center; color: #fff; }
         
-        /* Floating Send Bar */
+        /* Slide-up Overlays & Panels */
+        .overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+            z-index: 100; display: none; opacity: 0; transition: opacity 0.2s ease;
+        }
+        .panel {
+            position: fixed; bottom: -100%; left: 0; right: 0; max-height: 80vh;
+            background: #111827; border-top: 1px solid #1f2937;
+            border-top-left-radius: 20px; border-top-right-radius: 20px;
+            z-index: 101; display: flex; flex-direction: column;
+            transition: bottom 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .panel-header { padding: 16px 20px; border-bottom: 1px solid #1f2937; display: flex; justify-content: space-between; align-items: center; }
+        .panel-title { font-size: 1.1rem; font-weight: 700; }
+        .close-panel { background: none; border: none; color: #9ca3af; font-size: 1.3rem; cursor: pointer; }
+        .panel-content { padding: 16px; overflow-y: auto; flex-grow: 1; }
+
+        /* Cart View List Row Styles */
+        .cart-item-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid #1f2937;
+        }
+        .remove-cart-item { background: none; border: none; color: #ef4444; font-size: 1.1rem; cursor: pointer; margin-left: 10px; }
+
+        /* Custom CRUD Forms */
+        .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 0.8rem; color: #9ca3af; font-weight: 600; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px; background: #1f2937; border: 1px solid #374151;
+            border-radius: 8px; color: white; outline: none; font-size: 0.95rem;
+        }
+        .submit-btn {
+            width: 100%; padding: 14px; background: #10b981; color: white; border: none;
+            border-radius: 10px; font-weight: 700; cursor: pointer; margin-top: 10px;
+        }
+        .crud-list-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #1f2937; padding: 12px; margin-bottom: 6px; border-radius: 8px;
+        }
+
+        /* 4s Timeout Undo Toast Notification */
+        #toast {
+    position: fixed; 
+    bottom: 95px; 
+    left: 16px; 
+    right: 16px;
+    background: #1f2937; 
+    border: 2px solid #374151; 
+    padding: 16px;
+    border-radius: 12px; 
+    display: none; /* Starts completely invisible */
+    justify-content: space-between; 
+    align-items: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+    z-index: 9999; /* Forces it on top of everything else */
+}
+        #toast.show { transform: translateY(0); }
+        .undo-btn { background: none; border: none; color: #34d399; font-weight: 700; font-size: 0.9rem; cursor: pointer; }
+
+        /* Sticky Footer Navigation */
         footer { 
-            position: fixed; 
-            bottom: 0; 
-            width: 100%; 
-            background: #111827; 
-            padding: 16px 20px; 
-            border-top: 1px solid #1f2937;
-            z-index: 10; 
+            position: fixed; bottom: 0; width: 100%; background: #111827; 
+            padding: 14px 16px; border-top: 1px solid #1f2937; z-index: 10;
+            display: flex; gap: 12px;
         }
-        #send-btn { 
-            width: 100%; 
-            padding: 16px; 
-            background-color: #25D366; 
-            color: white; 
-            border: none; 
-            border-radius: 12px; 
-            font-size: 1rem; 
-            font-weight: 700; 
-            cursor: pointer;
-        }
-        #send-btn:active { transform: scale(0.99); opacity: 0.9; }
+        .footer-btn { flex-grow: 1; padding: 16px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        #cart-toggle-btn { background-color: #374151; color: white; position: relative; }
+        .cart-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; color: white; font-size: 0.75rem; padding: 3px 7px; border-radius: 50%; font-weight: bold; }
+        #send-btn { background-color: #25D366; color: white; flex-grow: 2; }
         .loading { text-align: center; padding: 40px; font-size: 1rem; color: #9ca3af; }
     </style>
 </head>
 <body>
+
     <header>
-        <h1>🛒 Smart Grocery List</h1>
-        <p>Food, Vegetables & Biscuits Only</p>
+        <h1 id="app-title">🛒 Grocery List</h1>
     </header>
 
+    <div class="action-row">
+        <button class="action-btn" onclick="openPanel('panel-manage')">⚙️ Manage Items</button>
+    </div>
+
     <div class="search-container">
-        <input type="text" id="search-bar" placeholder="Search vegetables, biscuits, or rice..." oninput="filterItems()">
+        <input type="text" id="search-bar" placeholder="Search vegetables, snacks, or staples..." oninput="filterItems()">
     </div>
 
     <main id="grocery-container">
-        <div class="loading">Parsing master database...</div>
+        <div class="loading">Loading database...</div>
     </main>
 
+    <div id="toast">
+        <span id="toast-msg">Item removed</span>
+        <button class="undo-btn" onclick="triggerUndo()">UNDO</button>
+    </div>
+
     <footer>
-        <button id="send-btn" onclick="sendToWhatsApp()">💬 Send Order via WhatsApp</button>
+        <button id="cart-toggle-btn" class="footer-btn" onclick="openPanel('panel-cart')">
+            🛒 View Cart <span id="global-badge" class="cart-badge" style="display:none;">0</span>
+        </button>
+        <button id="send-btn" class="footer-btn" onclick="sendToWhatsApp()">💬 Send via WhatsApp</button>
     </footer>
 
+    <div id="overlay-bg" class="overlay" onclick="closeAllPanels()"></div>
+
+    <div id="panel-cart" class="panel">
+        <div class="panel-header">
+            <span class="panel-title">🛒 Current Cart Details</span>
+            <button class="close-panel" onclick="closeAllPanels()">✕</button>
+        </div>
+        <div class="panel-content" id="cart-list-render">
+            </div>
+    </div>
+
+    <div id="panel-manage" class="panel">
+        <div class="panel-header">
+            <span class="panel-title">⚙️ Manage Item Database</span>
+            <button class="close-panel" onclick="closeAllPanels()">✕</button>
+        </div>
+        <div class="panel-content">
+            <div style="border-bottom: 1px solid #1f2937; padding-bottom: 16px; margin-bottom: 16px;">
+                <h3 style="font-size:0.9rem; margin-bottom:10px; color:#10b981;">➕ Add Custom Missing Item</h3>
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="add-name" placeholder="e.g., Matta Rice Vadi">
+                </div>
+                <div class="form-group">
+                    <label>Category Grouping</label>
+                    <select id="add-cat">
+                        <option value="Fresh Produce 🍅">Fresh Produce 🍅</option>
+                        <option value="Staples & Dals 🌾">Staples & Dals 🌾</option>
+                        <option value="Biscuits & Snacks 🍪">Biscuits & Snacks 🍪</option>
+                        <option value="Dairy & Breakfast 🥛">Dairy & Breakfast 🥛</option>
+                    </select>
+                </div>
+                <button class="submit-btn" onclick="createNewItem()">Save Product to App</button>
+            </div>
+            <div>
+                <h3 style="font-size:0.9rem; margin-bottom:10px; color:#ef4444;">🗑️ Remove Existing Master Items</h3>
+                <div id="crud-items-list" style="max-height: 250px; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
+
 <script>
-    let groceryItems = [];
-    let cart = {};
-    let searchQuery = "";
-    let historyFrequency = JSON.parse(localStorage.getItem('megaGroceryHistory')) || {};
-
-    // Safe, fault-tolerant CSV Parser
-    function safeCSVParse(text) {
-        let lines = text.split('\n');
-        if (lines.length <= 1) return [];
-
-        let headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/^"|"$/g, ''));
+    // Pure brandless Kerala Vegetable & Snack Baseline Dictionary
+    const initialDataset = [
+        { id: "kv_matta_unda", name: "Matta Rice Unda", category: "Staples & Dals 🌾" },
+        { id: "kv_matta_vadi", name: "Matta Rice Vadi", category: "Staples & Dals 🌾" },
+        { id: "kv_pachari", name: "Raw Rice (Pachari)", category: "Staples & Dals 🌾" },
+        { id: "kv_cherupayar", name: "Green Gram (Cherupayar)", category: "Staples & Dals 🌾" },
+        { id: "kv_kadala", name: "Brown Chickpeas (Kadala)", category: "Staples & Dals 🌾" },
+        { id: "kv_parippu", name: "Toor Dal (Thuvara Parippu)", category: "Staples & Dals 🌾" },
+        { id: "kv_puttu_podi", name: "Puttu Podi", category: "Staples & Dals 🌾" },
+        { id: "kv_atta", name: "Wheat Flour (Atta)", category: "Staples & Dals 🌾" },
+        { id: "kv_vellam", name: "Jaggery (Vellam)", category: "Staples & Dals 🌾" },
+        { id: "kv_sugar", name: "Sugar (Panchasara)", category: "Staples & Dals 🌾" },
+        { id: "kv_coconut_oil", name: "Coconut Oil (Velichenna)", category: "Staples & Dals 🌾" },
         
-        let idIdx = headers.indexOf('id');
-        let nameIdx = headers.indexOf('name');
-        let catIdx = headers.indexOf('category');
-        let brandIdx = headers.indexOf('brand');
-        let tagsIdx = headers.indexOf('tags');
+        { id: "kv_tomato", name: "Tomato", category: "Fresh Produce 🍅" },
+        { id: "kv_onion", name: "Onion (Savaala)", category: "Fresh Produce 🍅" },
+        { id: "kv_potato", name: "Potato (Urulakizhangu)", category: "Fresh Produce 🍅" },
+        { id: "kv_green_chilli", name: "Green Chilli", category: "Fresh Produce 🍅" },
+        { id: "kv_ginger", name: "Ginger (Inchi)", category: "Fresh Produce 🍅" },
+        { id: "kv_kappa", name: "Tapioca (Kappa)", category: "Fresh Produce 🍅" },
+        { id: "kv_kaya", name: "Raw Banana (Kaya)", category: "Fresh Produce 🍅" },
+        { id: "kv_mathanga", name: "Pumpkin (Mathanga)", category: "Fresh Produce 🍅" },
+        
+        { id: "kv_banana_chips", name: "Kaya Varuthathu (Banana Chips)", category: "Biscuits & Snacks 🍪" },
+        { id: "kv_sharkara", name: "Sharkara Varatti", category: "Biscuits & Snacks 🍪" },
+        { id: "kv_achappam", name: "Achappam", category: "Biscuits & Snacks 🍪" },
+        { id: "kv_unniyappam", name: "Unniyappam", category: "Biscuits & Snacks 🍪" },
+        { id: "kv_chakka_chips", name: "Jackfruit Chips", category: "Biscuits & Snacks 🍪" },
+        { id: "kv_rusk", name: "Rusk Pack", category: "Biscuits & Snacks 🍪" },
+        { id: "kv_marayoor_jaggery", name: "Marayoor Jaggery Drops", category: "Biscuits & Snacks 🍪" },
 
-        if (idIdx === -1) idIdx = 0;
-        if (nameIdx === -1) nameIdx = 1;
-        if (catIdx === -1) catIdx = 2;
-        if (brandIdx === -1) brandIdx = 3;
-        if (tagsIdx === -1) tagsIdx = 4;
+        { id: "kv_milk", name: "Milk Packet", category: "Dairy & Breakfast 🥛" },
+        { id: "kv_curd", name: "Curd Pouch", category: "Dairy & Breakfast 🥛" },
+        { id: "kv_bread", name: "Bread White Slice", category: "Dairy & Breakfast 🥛" }
+    ];
 
-        let items = [];
-        for (let i = 1; i < lines.length; i++) {
-            let line = lines[i].trim();
-            if (!line) continue;
+    // Data Load Sync Checks
+    let groceryItems = JSON.parse(localStorage.getItem('userCustomDataset')) || initialDataset;
+    let cart = JSON.parse(localStorage.getItem('activeCartEngine')) || {};
+    let itemUnits = JSON.parse(localStorage.getItem('activeItemUnits')) || {};
+    let historyFrequency = JSON.parse(localStorage.getItem('megaGroceryHistory')) || {};
+    
+    let searchQuery = "";
+    let toastTimeout = null;
+    let lastDeletedSnapshot = null;
 
-            let row = [];
-            let inQuotes = false;
-            let cell = "";
-
-            for (let j = 0; j < line.length; j++) {
-                let char = line[j];
-                if (char === '"') { inQuotes = !inQuotes; }
-                else if (char === ',' && !inQuotes) { row.push(cell.trim()); cell = ""; }
-                else { cell += char; }
-            }
-            row.push(cell.trim());
-
-            let name = row[nameIdx]?.replace(/^"|"$/g, '');
-            if (name && name !== 'nan') {
-                items.push({
-                    id: row[idIdx] || 'item_' + i,
-                    name: name,
-                    category: row[catIdx]?.replace(/^"|"$/g, '') || 'General Staples',
-                    brand: row[brandIdx]?.replace(/^"|"$/g, '') || 'Generic',
-                    tags: row[tagsIdx] ? row[tagsIdx].toLowerCase() : name.toLowerCase()
-                });
-            }
-        }
-        return items;
+    // Slide Panels Execution Engine
+    function openPanel(id) {
+        document.getElementById('overlay-bg').style.display = 'block';
+        setTimeout(() => document.getElementById('overlay-bg').style.opacity = '1', 10);
+        
+        const targetPanel = document.getElementById(id);
+        targetPanel.style.display = 'flex';
+        setTimeout(() => targetPanel.style.bottom = '0', 50);
+        
+        if (id === 'panel-cart') renderCartDrawer();
+        if (id === 'panel-manage') renderCRUDDatabaseList();
     }
 
-    async function loadMasterDataset() {
-        try {
-            const response = await fetch('merged_grocery_dataset.csv');
-            if (!response.ok) throw new Error();
-            const data = await response.text();
-            groceryItems = safeCSVParse(data);
+    function closeAllPanels() {
+        document.getElementById('overlay-bg').style.opacity = '0';
+        setTimeout(() => document.getElementById('overlay-bg').style.display = 'none', 200);
+        
+        const panels = document.querySelectorAll('.panel');
+        panels.forEach(p => p.style.bottom = '-100%');
+    }
+
+    // Dynamic database CRUD adjustments
+    function createNewItem() {
+        const nameInput = document.getElementById('add-name');
+        const catSelect = document.getElementById('add-cat');
+        const val = nameInput.value.trim();
+        
+        if (!val) { alert("Please input a valid item label!"); return; }
+        
+        const newObj = {
+            id: 'custom_' + Date.now(),
+            name: val,
+            category: catSelect.value
+        };
+        
+        groceryItems.unshift(newObj);
+        localStorage.setItem('userCustomDataset', JSON.stringify(groceryItems));
+        nameInput.value = "";
+        
+        renderCRUDDatabaseList();
+        renderItems();
+    }
+
+    function removeMasterItem(id) {
+        if(confirm("Are you sure you want to permanently delete this item from the entire app dictionary?")) {
+            groceryItems = groceryItems.filter(item => item.id !== id);
+            localStorage.setItem('userCustomDataset', JSON.stringify(groceryItems));
+            delete cart[id];
+            saveCartState();
+            renderCRUDDatabaseList();
             renderItems();
-        } catch (e) {
-            document.getElementById('grocery-container').innerHTML = `
-                <div class="loading" style="color:#ef4444; font-size: 0.95rem; text-align: left; line-height: 1.5;">
-                    ❌ Vercel Deployment Link Sync Error<br><br>
-                     Vercel cannot see your data file yet. Please complete these checks:<br><br>
-                    1. Verify that <b>merged_grocery_dataset.csv</b> is sitting in your <b>D:\\GroceryApp</b> folder right next to index.html.<br><br>
-                    2. Upload <b>both</b> files to your GitHub repository together so Vercel can fetch them.
-                </div>`;
         }
     }
 
+    function renderCRUDDatabaseList() {
+        const target = document.getElementById('crud-items-list');
+        target.innerHTML = '';
+        groceryItems.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'crud-list-item';
+            row.innerHTML = `
+                <div>
+                    <div style="font-size:0.9rem; font-weight:600;">${item.name}</div>
+                    <div style="font-size:0.7rem; color:#9ca3af;">${item.category}</div>
+                </div>
+                <button onclick="removeMasterItem('${item.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1rem;">🗑️</button>
+            `;
+            target.appendChild(row);
+        });
+    }
+
+    // UI Content Renderer
     function renderItems() {
         const container = document.getElementById('grocery-container');
         container.innerHTML = '';
+        updateGlobalFooterBadge();
 
+        // 1. Recommendation Query Check (Past Purchases Layer)
         const frequentItems = groceryItems
             .filter(item => historyFrequency[item.id] && historyFrequency[item.id] > 0)
             .sort((a, b) => historyFrequency[b.id] - historyFrequency[a.id])
@@ -219,45 +351,22 @@
             renderCategorySection("⭐️ Frequently Ordered", frequentItems, container);
         }
 
+        // 2. Active Main Filtering Loops
+        let matches = groceryItems;
         if (searchQuery.length >= 2) {
-            let matches = [];
-            let q = searchQuery.toLowerCase();
+            matches = groceryItems.filter(item => item.name.toLowerCase().includes(searchQuery));
+            // Sorting Matches alphabetically
+            matches.sort((a, b) => a.name.localeCompare(b.name));
+        }
 
-            for (let i = 0; i < groceryItems.length; i++) {
-                let item = groceryItems[i];
-                if (item.name.toLowerCase().includes(q) || item.tags.includes(q)) {
-                    matches.push(item);
-                }
-            }
+        const categories = [...new Set(matches.map(item => item.category))];
+        categories.forEach(category => {
+            const itemsInCat = matches.filter(item => item.category === category);
+            renderCategorySection(category, itemsInCat, container);
+        });
 
-            // Smart relevance sorting (Prioritizes items starting with the query word)
-            matches.sort((a, b) => {
-                let nameA = a.name.toLowerCase();
-                let nameB = b.name.toLowerCase();
-                
-                let startsA = nameA.startsWith(q) ? 1 : 0;
-                let startsB = nameB.startsWith(q) ? 1 : 0;
-                if (startsA !== startsB) return startsB - startsA;
-                
-                let exactWordA = new RegExp('\\b' + q + '\\b').test(nameA) ? 1 : 0;
-                let exactWordB = new RegExp('\\b' + q + '\\b').test(nameB) ? 1 : 0;
-                if (exactWordA !== exactWordB) return exactWordB - exactWordA;
-
-                return nameA.length - nameB.length;
-            });
-
-            let cleanMatches = matches.slice(0, 30);
-            const categories = [...new Set(cleanMatches.map(item => item.category))];
-            categories.forEach(category => {
-                const itemsInCat = cleanMatches.filter(item => item.category === category);
-                renderCategorySection(category, itemsInCat, container);
-            });
-
-            if (matches.length === 0) {
-                container.innerHTML = '<div class="loading">No matching food items found.</div>';
-            }
-        } else if (!frequentItems.length) {
-            container.innerHTML = '<div class="loading">Type at least 2 letters to perform search...</div>';
+        if (matches.length === 0) {
+            container.innerHTML = '<div class="loading">No local items found.</div>';
         }
     }
 
@@ -268,28 +377,52 @@
         
         items.forEach(item => {
             const qty = cart[item.id] || 0;
+            const selectedUnit = itemUnits[item.id] || "Qty";
+            
             const itemRow = document.createElement('div');
             itemRow.className = 'item-row';
             itemRow.innerHTML = `
-                <div>
-                    <span class="item-name">${item.name}</span>
-                    <span class="item-brand">${item.brand}</span>
+                <div class="item-details">
+                    <div class="item-title-block">
+                        <span class="item-name">${item.name}</span>
+                        <span class="item-meta">${item.category.split(' ')[0]} Entry</span>
+                    </div>
                 </div>
-                <div class="counter">
-                    <button onclick="updateQty('${item.id}', -1)">-</button>
-                    <span class="qty-count">${qty}</span>
-                    <button class="plus" onclick="updateQty('${item.id}', 1)">+</button>
+                <div class="controls-wrapper">
+                    <select class="unit-selector" onchange="changeUnit('${item.id}', this.value)">
+                        <option value="Qty" ${selectedUnit === 'Qty' ? 'selected' : ''}>Qty</option>
+                        <option value="Kilos" ${selectedUnit === 'Kilos' ? 'selected' : ''}>Kg</option>
+                    </select>
+                    <div class="counter">
+                        <button onclick="updateQty('${item.id}', -1)">-</button>
+                        <span class="qty-count">${qty}</span>
+                        <button class="plus" onclick="updateQty('${item.id}', 1)">+</button>
+                    </div>
                 </div>`;
             catDiv.appendChild(itemRow);
         });
         targetContainer.appendChild(catDiv);
     }
 
+    // State Mutation Engines
     function updateQty(id, change) {
         if (!cart[id]) cart[id] = 0;
         cart[id] += change;
         if (cart[id] <= 0) delete cart[id];
+        
+        saveCartState();
         renderItems();
+        if (document.getElementById('panel-cart').style.display === 'flex') renderCartDrawer();
+    }
+
+    function changeUnit(id, unit) {
+        itemUnits[id] = unit;
+        localStorage.setItem('activeItemUnits', JSON.stringify(itemUnits));
+        if (document.getElementById('panel-cart').style.display === 'flex') renderCartDrawer();
+    }
+
+    function saveCartState() {
+        localStorage.setItem('activeCartEngine', JSON.stringify(cart));
     }
 
     function filterItems() {
@@ -297,28 +430,119 @@
         renderItems();
     }
 
-    function sendToWhatsApp() {
-        let orderText = "📝 *GROCERY ORDER*\n-------------------------\n";
+    function updateGlobalFooterBadge() {
+        const total = Object.values(cart).reduce((a, b) => a + b, 0);
+        const badge = document.getElementById('global-badge');
+        if (total > 0) {
+            badge.innerText = total;
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    // Modal View Cart Content Builder
+    function renderCartDrawer() {
+        const wrapper = document.getElementById('cart-list-render');
+        wrapper.innerHTML = '';
         let hasItems = false;
 
         groceryItems.forEach(item => {
             if (cart[item.id]) {
-                orderText += `✅ ${item.name} → *Qty: ${cart[item.id]}*\n`;
                 hasItems = true;
+                const unit = itemUnits[item.id] || "Qty";
+                const row = document.createElement('div');
+                row.className = 'cart-item-row';
+                row.innerHTML = `
+                    <div>
+                        <div style="font-weight:600;">${item.name}</div>
+                        <div style="font-size:0.75rem; color:#9ca3af;">Setting: ${unit} metric</div>
+                    </div>
+                    <div style="display:flex; align-items:center;">
+                        <div class="counter">
+                            <button onclick="updateQty('${item.id}', -1)">-</button>
+                            <span class="qty-count">${cart[item.id]}</span>
+                            <button class="plus" onclick="updateQty('${item.id}', 1)">+</button>
+                        </div>
+                        <button class="remove-cart-item" onclick="forceRemoveCartItem('${item.id}')">🗑️</button>
+                    </div>
+                `;
+                wrapper.appendChild(row);
+            }
+        });
+
+        if (!hasItems) {
+            wrapper.innerHTML = '<div style="text-align:center; padding:30px; color:#6b7280;">Your cart is empty. Add elements below!</div>';
+        }
+    }
+
+    // Force Remove + 4s Undo Logic Engine Block
+function forceRemoveCartItem(id) {
+    lastDeletedSnapshot = { id: id, qty: cart[id] };
+
+    delete cart[id];
+    saveCartState();
+    renderCartDrawer();
+    renderItems();
+
+    // Force show the popup instantly
+    const toast = document.getElementById('toast');
+    document.getElementById('toast-msg').innerText = "Item removed from cart";
+    toast.style.display = "flex"; 
+
+    // Hard timer to completely hide it after 4 seconds
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+        toast.style.display = "none";
+        lastDeletedSnapshot = null;
+    }, 4000); 
+}
+
+function triggerUndo() {
+    if (lastDeletedSnapshot) {
+        cart[lastDeletedSnapshot.id] = lastDeletedSnapshot.qty;
+        saveCartState();
+        renderItems();
+        renderCartDrawer();
+        
+        // Kill the popup instantly on click
+        document.getElementById('toast').style.display = "none";
+        lastDeletedSnapshot = null;
+    }
+}
+
+    // WhatsApp String Formatter Delivery Engine
+    function sendToWhatsApp() {
+        let orderText = "📝 *GROCERY LIST ORDER*\n-------------------------\n";
+        let hasItems = false;
+
+        groceryItems.forEach(item => {
+            if (cart[item.id]) {
+                const unit = itemUnits[item.id] || "Qty";
+                const displayUnit = unit === "Kilos" ? "Kg" : "Nos";
+                orderText += `✅ *${item.name}* → *${cart[item.id]} ${displayUnit}*\n`;
+                hasItems = true;
+                
+                // Track frequency metrics for past purchases loop
                 historyFrequency[item.id] = (historyFrequency[item.id] || 0) + 1;
             }
         });
 
-        if (!hasItems) { alert("Please select items first!"); return; }
-        orderText += "-------------------------\n Please deliver as soon as possible. Thanks!";
+        if (!hasItems) { alert("Please build your cart list before checking out!"); return; }
+        orderText += "-------------------------\nPlease process this delivery checklist. Thanks!";
 
         localStorage.setItem('megaGroceryHistory', JSON.stringify(historyFrequency));
         window.open(`https://wa.me/?text=${encodeURIComponent(orderText)}`, '_blank');
+        
+        // Wipe local cart cache upon checkout submission
         cart = {};
+        saveCartState();
         renderItems();
+        closeAllPanels();
     }
 
-    loadMasterDataset();
+    // Initialize View Layer execution
+    renderItems();
 </script>
 </body>
 </html>
