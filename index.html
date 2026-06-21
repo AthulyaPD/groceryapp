@@ -21,8 +21,8 @@
         @media(min-width: 400px) { .item-row { flex-direction: row; justify-content: space-between; align-items: center; } }
         .item-details { display: flex; align-items: center; justify-content: space-between; width: 100%; }
         .item-name { font-size: 1rem; font-weight: 500; color: #f9fafb; }
-        .controls-wrapper { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
-        .unit-selector { background: #1f2937; color: #9ca3af; border: 1px solid #374151; padding: 6px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; outline: none; }
+        .controls-wrapper { display: flex; align-items: center; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+        .unit-selector, .weight-sub-select { background: #1f2937; color: #9ca3af; border: 1px solid #374151; padding: 6px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; outline: none; }
         .counter { display: flex; align-items: center; gap: 10px; }
         .counter button { width: 34px; height: 34px; font-size: 1.2rem; font-weight: 600; border: none; background-color: #1f2937; color: #f3f4f6; border-radius: 8px; cursor: pointer; }
         .counter button.plus { background-color: rgba(16, 185, 129, 0.2); color: #34d399; }
@@ -41,7 +41,6 @@
         .submit-btn { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
         .crud-list-item { display: flex; justify-content: space-between; align-items: center; background: #1f2937; padding: 12px; margin-bottom: 6px; border-radius: 8px; }
         
-        /* Fixed Absolute-Hiding Undo Toast */
         #toast { position: fixed; bottom: 95px; left: 16px; right: 16px; background: #1f2937; border: 2px solid #374151; padding: 16px; border-radius: 12px; display: none; justify-content: space-between; align-items: center; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6); z-index: 9999; }
         .undo-btn { background: none; border: none; color: #34d399; font-weight: 700; cursor: pointer; }
         
@@ -287,63 +286,119 @@
         if (matches.length === 0) container.innerHTML = '<div class="loading">No items found.</div>';
     }
 
+    // Helper helper to generate smart weight strings dynamically
+    function formatWeightString(kilos, grams) {
+        let k = parseInt(kilos) || 0;
+        let g = parseInt(grams) || 0;
+        if (k === 0 && g === 0) return "0 Qty";
+        if (k === 0 && g > 0) return `${g}g`;
+        
+        // Dynamic decimal conversion (e.g., 2kg + 400g = 2.4 Kg)
+        let combinedValue = k + (g / 1000);
+        return `${combinedValue} Kg`;
+    }
+
     function renderCategorySection(title, items, targetContainer) {
         const catDiv = document.createElement('div'); catDiv.className = 'category-section'; catDiv.innerHTML = `<h2>${title}</h2>`;
         items.forEach(item => {
-            const qty = cart[item.id] || 0, selectedUnit = itemUnits[item.id] || "Nos";
+            const state = cart[item.id] || { mode: "Qty", qty: 0, kilo: 0, gram: 0 };
+            const selectedMode = state.mode || "Qty";
+            
             const itemRow = document.createElement('div'); itemRow.className = 'item-row';
+            
+            let controlInputsHTML = "";
+            if (selectedMode === "Weight") {
+                controlInputsHTML = `
+                    <select class="weight-sub-select" onchange="updateWeightPart('${item.id}', 'kilo', this.value)">
+                        ${[0,1,2,3,4,5,6,7,8,9,10].map(v => `<option value="${v}" ${state.kilo==v?'selected':''}>${v} Kg</option>`).join('')}
+                    </select>
+                    <select class="weight-sub-select" onchange="updateWeightPart('${item.id}', 'gram', this.value)">
+                        <option value="0" ${state.gram==0?'selected':''}>0g</option>
+                        <option value="100" ${state.gram==100?'selected':''}>100g</option>
+                        <option value="250" ${state.gram==250?'selected':''}>250g</option>
+                        <option value="500" ${state.gram==500?'selected':''}>500g</option>
+                        <option value="750" ${state.gram==750?'selected':''}>750g</option>
+                    </select>
+                `;
+            } else {
+                controlInputsHTML = `
+                    <div class="counter">
+                        <button onclick="updateCountQty('${item.id}', -1)">-</button>
+                        <span class="qty-count">${state.qty || 0}</span>
+                        <button class="plus" onclick="updateCountQty('${item.id}', 1)">+</button>
+                    </div>
+                `;
+            }
+
             itemRow.innerHTML = `
                 <div class="item-details"><div class="item-title-block"><span class="item-name">${item.name}</span></div></div>
                 <div class="controls-wrapper">
-                    <select class="unit-selector" onchange="changeUnit('${item.id}', this.value)">
-                        <option value="Nos" ${selectedUnit==='Nos'?'selected':''}>Nos</option>
-                        <option value="Kg" ${selectedUnit==='Kg'?'selected':''}>Kg</option>
-                        <option value="g" ${selectedUnit==='g'?'selected':''}>g</option>
-                        <option value="1.5 Kg" ${selectedUnit==='1.5 Kg'?'selected':''}>1.5 Kg</option>
+                    <select class="unit-selector" onchange="changeItemMode('${item.id}', this.value)">
+                        <option value="Qty" ${selectedMode==='Qty'?'selected':''}>Qty</option>
+                        <option value="Weight" ${selectedMode==='Weight'?'selected':''}>Weight</option>
                     </select>
-                    <div class="counter">
-                        <button onclick="updateQty('${item.id}', -1)">-</button>
-                        <span class="qty-count">${qty}</span>
-                        <button class="plus" onclick="updateQty('${item.id}', 1)">+</button>
-                    </div>
+                    ${controlInputsHTML}
                 </div>`;
             catDiv.appendChild(itemRow);
         });
         targetContainer.appendChild(catDiv);
     }
 
-    function updateQty(id, change) {
-        if (!cart[id]) cart[id] = 0; cart[id] += change;
-        if (cart[id] <= 0) delete cart[id];
+    function changeItemMode(id, mode) {
+        if (!cart[id]) cart[id] = { mode: mode, qty: 0, kilo: 0, gram: 0 };
+        cart[id].mode = mode;
+        // Reset values if changing modes to prevent ghost measurements
+        if(mode === "Weight" && cart[id].kilo === 0 && cart[id].gram === 0) cart[id].kilo = 1; // Default fallback to 1 Kg
+        saveCartState(); renderItems();
+    }
+
+    function updateCountQty(id, change) {
+        if (!cart[id]) cart[id] = { mode: "Qty", qty: 0, kilo: 0, gram: 0 };
+        cart[id].qty = (cart[id].qty || 0) + change;
+        if (cart[id].qty <= 0) delete cart[id];
         saveCartState(); renderItems();
         if (document.getElementById('panel-cart').style.display === 'flex') renderCartDrawer();
     }
 
-    function changeUnit(id, unit) { itemUnits[id] = unit; localStorage.setItem('activeItemUnits', JSON.stringify(itemUnits)); }
+    function updateWeightPart(id, component, value) {
+        if (!cart[id]) cart[id] = { mode: "Weight", qty: 0, kilo: 0, gram: 0 };
+        cart[id][component] = parseInt(value);
+        if (cart[id].kilo === 0 && cart[id].gram === 0) delete cart[id];
+        saveCartState(); renderItems();
+        if (document.getElementById('panel-cart').style.display === 'flex') renderCartDrawer();
+    }
+
     function saveCartState() { localStorage.setItem('activeCartEngine', JSON.stringify(cart)); }
     function filterItems() { searchQuery = document.getElementById('search-bar').value.toLowerCase().trim(); renderItems(); }
-    function updateGlobalFooterBadge() { const total = Object.values(cart).reduce((a, b) => a + b, 0); const badge = document.getElementById('global-badge'); if (total > 0) { badge.innerText = total; badge.style.display = 'inline-block'; } else { badge.style.display = 'none'; } }
+    
+    function updateGlobalFooterBadge() { 
+        const total = Object.values(cart).length; 
+        const badge = document.getElementById('global-badge'); 
+        if (total > 0) { badge.innerText = total; badge.style.display = 'inline-block'; } else { badge.style.display = 'none'; } 
+    }
 
     function renderCartDrawer() {
         const wrapper = document.getElementById('cart-list-render'); wrapper.innerHTML = ''; let hasItems = false;
         getCombinedDataset().forEach(item => {
             if (cart[item.id]) {
-                hasItems = true; const unit = itemUnits[item.id] || "Nos";
-                const row = document.createElement('div'); row.className = 'cart-item-row';
-                row.innerHTML = `
-                    <div><div style="font-weight:600;">${item.name}</div><div style="font-size:0.75rem; color:#9ca3af;">Setting: ${unit}</div></div>
-                    <div style="display:flex; align-items:center;">
-                        <div class="counter"><button onclick="updateQty('${item.id}', -1)">-</button><span class="qty-count">${cart[item.id]}</span><button class="plus" onclick="updateQty('${item.id}', 1)">+</button></div>
-                        <button class="remove-cart-item" onclick="forceRemoveCartItem('${item.id}')">🗑️</button>
+                hasItems = true; 
+                const state = cart[item.id];
+                let displayAmt = state.mode === "Weight" ? formatWeightString(state.kilo, state.gram) : `${state.qty} Qty`;
+                
+                wrapper.innerHTML += `
+                    <div class="cart-item-row">
+                        <div><div style="font-weight:600;">${item.name}</div><div style="font-size:0.75rem; color:#9ca3af;">Amount: ${displayAmt}</div></div>
+                        <div style="display:flex; align-items:center;">
+                            <button class="remove-cart-item" onclick="forceRemoveCartItem('${item.id}')" style="margin-right:15px;">🗑️ Remove</button>
+                        </div>
                     </div>`;
-                wrapper.appendChild(row);
             }
         });
         if (!hasItems) wrapper.innerHTML = '<div style="text-align:center; padding:30px; color:#6b7280;">Your cart is empty.</div>';
     }
 
     function forceRemoveCartItem(id) {
-        lastDeletedSnapshot = { id: id, qty: cart[id] };
+        lastDeletedSnapshot = { id: id, data: JSON.parse(JSON.stringify(cart[id])) };
         delete cart[id]; saveCartState(); renderCartDrawer(); renderItems();
         const toast = document.getElementById('toast'); toast.style.display = "flex";
         clearTimeout(toastTimeout);
@@ -352,7 +407,7 @@
 
     function triggerUndo() {
         if (lastDeletedSnapshot) {
-            cart[lastDeletedSnapshot.id] = lastDeletedSnapshot.qty; saveCartState(); renderItems(); renderCartDrawer();
+            cart[lastDeletedSnapshot.id] = lastDeletedSnapshot.data; saveCartState(); renderItems(); renderCartDrawer();
             document.getElementById('toast').style.display = "none"; lastDeletedSnapshot = null;
         }
     }
@@ -360,23 +415,16 @@
     function sendToWhatsApp() {
         let orderText = "📝 *GROCERY SHOPPING LIST*\n";
         orderText += "----------------------------------------\n\n";
-        orderText += "▪️ *These are the items required:* \n\n";
+       
         
         let hasItems = false;
 
         getCombinedDataset().forEach(item => {
             if (cart[item.id]) {
-                const unit = itemUnits[item.id] || "Nos";
+                const state = cart[item.id];
+                let finalMeasurement = state.mode === "Weight" ? formatWeightString(state.kilo, state.gram) : `${state.qty} Qty`;
                 
-                let displayLine = "";
-                if (unit === "1.5 Kg") {
-                    let multiplierText = cart[item.id] > 1 ? ` (${cart[item.id]} packs)` : "";
-                    displayLine = `▪️ *${item.name}* ➔ 1.5 Kg${multiplierText}\n`;
-                } else {
-                    displayLine = `▪️ *${item.name}* ➔ ${cart[item.id]} ${unit}\n`;
-                }
-                
-                orderText += displayLine;
+                orderText += `▪️ *${item.name}* ➔ ${finalMeasurement}\n`;
                 hasItems = true;
                 historyFrequency[item.id] = (historyFrequency[item.id] || 0) + 1;
             }
@@ -385,7 +433,8 @@
         if (!hasItems) return;
         
         orderText += "\n----------------------------------------\n";
-        orderText += "Please keep these items packed and ready. Thank you! 🙏";
+       
+        orderText += "▪️ *These are the items required. Thank you! 🙏* \n\n";
 
         localStorage.setItem('megaGroceryHistory', JSON.stringify(historyFrequency));
         window.open(`https://wa.me/?text=${encodeURIComponent(orderText)}`, '_blank');
