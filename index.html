@@ -520,7 +520,7 @@ function triggerUndo() {
             if (cart[item.id]) {
                 const unit = itemUnits[item.id] || "Qty";
                 const displayUnit = unit === "Kilos" ? "Kg" : "Nos";
-                orderText += `✅ *${item.name}* → *${cart[item.id]} ${displayUnit}*\n`;
+                orderText += `▪️ *${item.name}* → *${cart[item.id]} ${displayUnit}*\n`;
                 hasItems = true;
                 
                 // Track frequency metrics for past purchases loop
