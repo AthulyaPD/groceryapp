@@ -40,8 +40,11 @@
         .form-group input, .form-group select { width: 100%; padding: 12px; background: #1f2937; border: 1px solid #374151; border-radius: 8px; color: white; outline: none; }
         .submit-btn { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
         .crud-list-item { display: flex; justify-content: space-between; align-items: center; background: #1f2937; padding: 12px; margin-bottom: 6px; border-radius: 8px; }
+        
+        /* Fixed Absolute-Hiding Undo Toast */
         #toast { position: fixed; bottom: 95px; left: 16px; right: 16px; background: #1f2937; border: 2px solid #374151; padding: 16px; border-radius: 12px; display: none; justify-content: space-between; align-items: center; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6); z-index: 9999; }
         .undo-btn { background: none; border: none; color: #34d399; font-weight: 700; cursor: pointer; }
+        
         footer { position: fixed; bottom: 0; width: 100%; background: #111827; padding: 14px 16px; border-top: 1px solid #1f2937; z-index: 10; display: flex; gap: 12px; }
         .footer-btn { flex-grow: 1; padding: 16px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         #cart-toggle-btn { background-color: #374151; color: white; position: relative; }
@@ -131,7 +134,6 @@
     let toastTimeout = null;
     let lastDeletedSnapshot = null;
 
-    // Standardized, flattened numeric item loop mapper
     function getCombinedDataset() {
         return [...userCustomItems, ...baseCSVItems];
     }
@@ -155,7 +157,7 @@
             let name = row[nameIdx]?.replace(/^"|"$/g, '');
             if (name && name !== 'nan') {
                 items.push({
-                    id: String(row[idIdx] || 'csv_' + i).trim(), // Maps standard numbers cleanly as tracking string IDs
+                    id: String(row[idIdx] || 'csv_' + i).trim(),
                     name: name,
                     category: row[catIdx]?.replace(/^"|"$/g, '') || 'Staples & Dals 🌾'
                 });
@@ -196,7 +198,6 @@
         const val = nameInput.value.trim();
         if (!val) return;
         
-        // Custom items use dynamic timestamps which will never conflict with Excel 1, 2, 3 entries
         const newObj = { id: String(Date.now()), name: val, category: catSelect.value };
         userCustomItems.unshift(newObj);
         localStorage.setItem('userCustomDataset', JSON.stringify(userCustomItems));
@@ -289,14 +290,16 @@
     function renderCategorySection(title, items, targetContainer) {
         const catDiv = document.createElement('div'); catDiv.className = 'category-section'; catDiv.innerHTML = `<h2>${title}</h2>`;
         items.forEach(item => {
-            const qty = cart[item.id] || 0, selectedUnit = itemUnits[item.id] || "Qty";
+            const qty = cart[item.id] || 0, selectedUnit = itemUnits[item.id] || "Nos";
             const itemRow = document.createElement('div'); itemRow.className = 'item-row';
             itemRow.innerHTML = `
                 <div class="item-details"><div class="item-title-block"><span class="item-name">${item.name}</span></div></div>
                 <div class="controls-wrapper">
                     <select class="unit-selector" onchange="changeUnit('${item.id}', this.value)">
-                        <option value="Qty" ${selectedUnit==='Qty'?'selected':''}>Qty</option>
-                        <option value="Kilos" ${selectedUnit==='Kilos'?'selected':''}>Kg</option>
+                        <option value="Nos" ${selectedUnit==='Nos'?'selected':''}>Nos</option>
+                        <option value="Kg" ${selectedUnit==='Kg'?'selected':''}>Kg</option>
+                        <option value="g" ${selectedUnit==='g'?'selected':''}>g</option>
+                        <option value="1.5 Kg" ${selectedUnit==='1.5 Kg'?'selected':''}>1.5 Kg</option>
                     </select>
                     <div class="counter">
                         <button onclick="updateQty('${item.id}', -1)">-</button>
@@ -325,7 +328,7 @@
         const wrapper = document.getElementById('cart-list-render'); wrapper.innerHTML = ''; let hasItems = false;
         getCombinedDataset().forEach(item => {
             if (cart[item.id]) {
-                hasItems = true; const unit = itemUnits[item.id] || "Qty";
+                hasItems = true; const unit = itemUnits[item.id] || "Nos";
                 const row = document.createElement('div'); row.className = 'cart-item-row';
                 row.innerHTML = `
                     <div><div style="font-weight:600;">${item.name}</div><div style="font-size:0.75rem; color:#9ca3af;">Setting: ${unit}</div></div>
@@ -355,18 +358,38 @@
     }
 
     function sendToWhatsApp() {
-        let orderText = "📝 *GROCERY LIST ORDER*\n-------------------------\n"; let hasItems = false;
+        let orderText = "📝 *GROCERY SHOPPING LIST*\n";
+        orderText += "----------------------------------------\n\n";
+        orderText += "▪️ *These are the items required:* \n\n";
+        
+        let hasItems = false;
+
         getCombinedDataset().forEach(item => {
             if (cart[item.id]) {
-                const unit = itemUnits[item.id] || "Qty"; const displayUnit = unit === "Kilos" ? "Kg" : "Nos";
-                orderText += `✅ *${item.name}* → *${cart[item.id]} ${displayUnit}*\n`; hasItems = true;
+                const unit = itemUnits[item.id] || "Nos";
+                
+                let displayLine = "";
+                if (unit === "1.5 Kg") {
+                    let multiplierText = cart[item.id] > 1 ? ` (${cart[item.id]} packs)` : "";
+                    displayLine = `▪️ *${item.name}* ➔ 1.5 Kg${multiplierText}\n`;
+                } else {
+                    displayLine = `▪️ *${item.name}* ➔ ${cart[item.id]} ${unit}\n`;
+                }
+                
+                orderText += displayLine;
+                hasItems = true;
                 historyFrequency[item.id] = (historyFrequency[item.id] || 0) + 1;
             }
         });
+
         if (!hasItems) return;
-        orderText += "-------------------------\nPlease process this checklist. Thanks!";
+        
+        orderText += "\n----------------------------------------\n";
+        orderText += "Please keep these items packed and ready. Thank you! 🙏";
+
         localStorage.setItem('megaGroceryHistory', JSON.stringify(historyFrequency));
         window.open(`https://wa.me/?text=${encodeURIComponent(orderText)}`, '_blank');
+        
         cart = {}; saveCartState(); renderItems(); closeAllPanels();
     }
 
