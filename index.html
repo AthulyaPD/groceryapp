@@ -8,137 +8,41 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: #0b0f19; color: #f1f5f9; padding-bottom: 110px; }
-        
-        /* Layout Header */
-        header { 
-            background: #111827; 
-            border-bottom: 1px solid #1f2937;
-            text-align: center; 
-            padding: 20px 15px; 
-            position: sticky; 
-            top: 0; 
-            z-index: 10;
-        }
+        header { background: #111827; border-bottom: 1px solid #1f2937; text-align: center; padding: 20px 15px; position: sticky; top: 0; z-index: 10; }
         header h1 { font-size: 1.4rem; font-weight: 700; color: #fff; }
-        
-        /* Floating Actions Bar */
         .action-row { display: flex; gap: 10px; padding: 10px 16px 0 16px; background: #0b0f19; }
-        .action-btn {
-            background: #1f2937; color: white; border: 1px solid #374151;
-            padding: 10px 14px; border-radius: 10px; font-size: 0.85rem; font-weight: 600;
-            cursor: pointer; display: flex; align-items: center; gap: 6px;
-        }
-
-        /* Search Controls */
+        .action-btn { background: #1f2937; color: white; border: 1px solid #374151; padding: 10px 14px; border-radius: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
         .search-container { padding: 12px 16px; position: relative; z-index: 9; background: #0b0f19; }
-        #search-bar { 
-            width: 100%; padding: 14px 16px 14px 42px; font-size: 0.95rem; 
-            background: #1f2937; color: white; border: 1px solid #374151; 
-            border-radius: 12px; outline: none; transition: all 0.2s ease;
-        }
+        #search-bar { width: 100%; padding: 14px 16px 14px 42px; font-size: 0.95rem; background: #1f2937; color: white; border: 1px solid #374151; border-radius: 12px; outline: none; }
         #search-bar:focus { border-color: #10b981; background: #111827; }
         .search-container::before { content: "🔍"; position: absolute; left: 30px; top: 25px; font-size: 1rem; opacity: 0.5; }
-
-        /* Categorization styling */
         .category-section h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #10b981; padding: 16px 20px 8px 20px; font-weight: 700; }
-        
-        /* Master Grid Layout Items */
-        .item-row { 
-            background: #111827; padding: 14px 16px; margin: 0 16px 8px 16px;
-            border-radius: 14px; border: 1px solid #1f2937;
-            display: flex; flex-direction: column; gap: 10px;
-        }
-        @media(min-width: 400px) {
-            .item-row { flex-direction: row; justify-content: space-between; align-items: center; }
-        }
+        .item-row { background: #111827; padding: 14px 16px; margin: 0 16px 8px 16px; border-radius: 14px; border: 1px solid #1f2937; display: flex; flex-direction: column; gap: 10px; }
+        @media(min-width: 400px) { .item-row { flex-direction: row; justify-content: space-between; align-items: center; } }
         .item-details { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-        .item-title-block { display: flex; flex-direction: column; }
         .item-name { font-size: 1rem; font-weight: 500; color: #f9fafb; }
-        .item-meta { font-size: 0.75rem; color: #6b7280; margin-top: 2px; }
-        
-        /* Control adjusters */
         .controls-wrapper { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
-        .unit-selector {
-            background: #1f2937; color: #9ca3af; border: 1px solid #374151;
-            padding: 6px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; outline: none;
-        }
-        .unit-selector:focus { border-color: #10b981; }
-        
-        /* Counter Engine */
+        .unit-selector { background: #1f2937; color: #9ca3af; border: 1px solid #374151; padding: 6px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; outline: none; }
         .counter { display: flex; align-items: center; gap: 10px; }
-        .counter button { 
-            width: 34px; height: 34px; font-size: 1.2rem; font-weight: 600; border: none; 
-            background-color: #1f2937; color: #f3f4f6; border-radius: 8px; cursor: pointer;
-        }
+        .counter button { width: 34px; height: 34px; font-size: 1.2rem; font-weight: 600; border: none; background-color: #1f2937; color: #f3f4f6; border-radius: 8px; cursor: pointer; }
         .counter button.plus { background-color: rgba(16, 185, 129, 0.2); color: #34d399; }
         .qty-count { font-size: 0.95rem; font-weight: 700; min-width: 24px; text-align: center; color: #fff; }
-        
-        /* Slide-up Overlays & Panels */
-        .overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
-            z-index: 100; display: none; opacity: 0; transition: opacity 0.2s ease;
-        }
-        .panel {
-            position: fixed; bottom: -100%; left: 0; right: 0; max-height: 80vh;
-            background: #111827; border-top: 1px solid #1f2937;
-            border-top-left-radius: 20px; border-top-right-radius: 20px;
-            z-index: 101; display: flex; flex-direction: column;
-            transition: bottom 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
+        .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); z-index: 100; display: none; }
+        .panel { position: fixed; bottom: -100%; left: 0; right: 0; max-height: 80vh; background: #111827; border-top: 1px solid #1f2937; border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 101; display: flex; flex-direction: column; transition: bottom 0.3s ease; }
         .panel-header { padding: 16px 20px; border-bottom: 1px solid #1f2937; display: flex; justify-content: space-between; align-items: center; }
         .panel-title { font-size: 1.1rem; font-weight: 700; }
         .close-panel { background: none; border: none; color: #9ca3af; font-size: 1.3rem; cursor: pointer; }
         .panel-content { padding: 16px; overflow-y: auto; flex-grow: 1; }
-
-        /* Cart View List Row Styles */
-        .cart-item-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid #1f2937;
-        }
+        .cart-item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #1f2937; }
         .remove-cart-item { background: none; border: none; color: #ef4444; font-size: 1.1rem; cursor: pointer; margin-left: 10px; }
-
-        /* Custom CRUD Forms */
         .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px; }
         .form-group label { font-size: 0.8rem; color: #9ca3af; font-weight: 600; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 12px; background: #1f2937; border: 1px solid #374151;
-            border-radius: 8px; color: white; outline: none; font-size: 0.95rem;
-        }
-        .submit-btn {
-            width: 100%; padding: 14px; background: #10b981; color: white; border: none;
-            border-radius: 10px; font-weight: 700; cursor: pointer; margin-top: 10px;
-        }
-        .crud-list-item {
-            display: flex; justify-content: space-between; align-items: center;
-            background: #1f2937; padding: 12px; margin-bottom: 6px; border-radius: 8px;
-        }
-
-        /* 4s Timeout Undo Toast Notification */
-        #toast {
-    position: fixed; 
-    bottom: 95px; 
-    left: 16px; 
-    right: 16px;
-    background: #1f2937; 
-    border: 2px solid #374151; 
-    padding: 16px;
-    border-radius: 12px; 
-    display: none; /* Starts completely invisible */
-    justify-content: space-between; 
-    align-items: center;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
-    z-index: 9999; /* Forces it on top of everything else */
-}
-        #toast.show { transform: translateY(0); }
-        .undo-btn { background: none; border: none; color: #34d399; font-weight: 700; font-size: 0.9rem; cursor: pointer; }
-
-        /* Sticky Footer Navigation */
-        footer { 
-            position: fixed; bottom: 0; width: 100%; background: #111827; 
-            padding: 14px 16px; border-top: 1px solid #1f2937; z-index: 10;
-            display: flex; gap: 12px;
-        }
+        .form-group input, .form-group select { width: 100%; padding: 12px; background: #1f2937; border: 1px solid #374151; border-radius: 8px; color: white; outline: none; }
+        .submit-btn { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
+        .crud-list-item { display: flex; justify-content: space-between; align-items: center; background: #1f2937; padding: 12px; margin-bottom: 6px; border-radius: 8px; }
+        #toast { position: fixed; bottom: 95px; left: 16px; right: 16px; background: #1f2937; border: 2px solid #374151; padding: 16px; border-radius: 12px; display: none; justify-content: space-between; align-items: center; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6); z-index: 9999; }
+        .undo-btn { background: none; border: none; color: #34d399; font-weight: 700; cursor: pointer; }
+        footer { position: fixed; bottom: 0; width: 100%; background: #111827; padding: 14px 16px; border-top: 1px solid #1f2937; z-index: 10; display: flex; gap: 12px; }
         .footer-btn { flex-grow: 1; padding: 16px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         #cart-toggle-btn { background-color: #374151; color: white; position: relative; }
         .cart-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; color: white; font-size: 0.75rem; padding: 3px 7px; border-radius: 50%; font-weight: bold; }
@@ -149,7 +53,7 @@
 <body>
 
     <header>
-        <h1 id="app-title">🛒 Grocery List</h1>
+        <h1>🛒 Grocery List</h1>
     </header>
 
     <div class="action-row">
@@ -157,7 +61,7 @@
     </div>
 
     <div class="search-container">
-        <input type="text" id="search-bar" placeholder="Search vegetables, snacks, or staples..." oninput="filterItems()">
+        <input type="text" id="search-bar" placeholder="Search items..." oninput="filterItems()">
     </div>
 
     <main id="grocery-container">
@@ -171,9 +75,9 @@
 
     <footer>
         <button id="cart-toggle-btn" class="footer-btn" onclick="openPanel('panel-cart')">
-            🛒 View Cart <span id="global-badge" class="cart-badge" style="display:none;">0</span>
+            🛒 Cart <span id="global-badge" class="cart-badge" style="display:none;">0</span>
         </button>
-        <button id="send-btn" class="footer-btn" onclick="sendToWhatsApp()">💬 Send via WhatsApp</button>
+        <button id="send-btn" class="footer-btn" onclick="sendToWhatsApp()">💬 Send Order</button>
     </footer>
 
     <div id="overlay-bg" class="overlay" onclick="closeAllPanels()"></div>
@@ -183,8 +87,7 @@
             <span class="panel-title">🛒 Current Cart Details</span>
             <button class="close-panel" onclick="closeAllPanels()">✕</button>
         </div>
-        <div class="panel-content" id="cart-list-render">
-            </div>
+        <div class="panel-content" id="cart-list-render"></div>
     </div>
 
     <div id="panel-manage" class="panel">
@@ -194,10 +97,10 @@
         </div>
         <div class="panel-content">
             <div style="border-bottom: 1px solid #1f2937; padding-bottom: 16px; margin-bottom: 16px;">
-                <h3 style="font-size:0.9rem; margin-bottom:10px; color:#10b981;">➕ Add Custom Missing Item</h3>
+                <h3 style="font-size:0.9rem; margin-bottom:10px; color:#10b981;">➕ Add Custom Item</h3>
                 <div class="form-group">
                     <label>Product Name</label>
-                    <input type="text" id="add-name" placeholder="e.g., Matta Rice Vadi">
+                    <input type="text" id="add-name" placeholder="e.g., Apple">
                 </div>
                 <div class="form-group">
                     <label>Category Grouping</label>
@@ -208,54 +111,18 @@
                         <option value="Dairy & Breakfast 🥛">Dairy & Breakfast 🥛</option>
                     </select>
                 </div>
-                <button class="submit-btn" onclick="createNewItem()">Save Product to App</button>
+                <button class="submit-btn" onclick="createNewItem()">Save Product</button>
             </div>
             <div>
-                <h3 style="font-size:0.9rem; margin-bottom:10px; color:#ef4444;">🗑️ Remove Existing Master Items</h3>
+                <h3 style="font-size:0.9rem; margin-bottom:10px; color:#ef4444;">🗑️ Edit / Remove Items</h3>
                 <div id="crud-items-list" style="max-height: 250px; overflow-y: auto;"></div>
             </div>
         </div>
     </div>
 
 <script>
-    // Pure brandless Kerala Vegetable & Snack Baseline Dictionary
-    const initialDataset = [
-        { id: "kv_matta_unda", name: "Matta Rice Unda", category: "Staples & Dals 🌾" },
-        { id: "kv_matta_vadi", name: "Matta Rice Vadi", category: "Staples & Dals 🌾" },
-        { id: "kv_pachari", name: "Raw Rice (Pachari)", category: "Staples & Dals 🌾" },
-        { id: "kv_cherupayar", name: "Green Gram (Cherupayar)", category: "Staples & Dals 🌾" },
-        { id: "kv_kadala", name: "Brown Chickpeas (Kadala)", category: "Staples & Dals 🌾" },
-        { id: "kv_parippu", name: "Toor Dal (Thuvara Parippu)", category: "Staples & Dals 🌾" },
-        { id: "kv_puttu_podi", name: "Puttu Podi", category: "Staples & Dals 🌾" },
-        { id: "kv_atta", name: "Wheat Flour (Atta)", category: "Staples & Dals 🌾" },
-        { id: "kv_vellam", name: "Jaggery (Vellam)", category: "Staples & Dals 🌾" },
-        { id: "kv_sugar", name: "Sugar (Panchasara)", category: "Staples & Dals 🌾" },
-        { id: "kv_coconut_oil", name: "Coconut Oil (Velichenna)", category: "Staples & Dals 🌾" },
-        
-        { id: "kv_tomato", name: "Tomato", category: "Fresh Produce 🍅" },
-        { id: "kv_onion", name: "Onion (Savaala)", category: "Fresh Produce 🍅" },
-        { id: "kv_potato", name: "Potato (Urulakizhangu)", category: "Fresh Produce 🍅" },
-        { id: "kv_green_chilli", name: "Green Chilli", category: "Fresh Produce 🍅" },
-        { id: "kv_ginger", name: "Ginger (Inchi)", category: "Fresh Produce 🍅" },
-        { id: "kv_kappa", name: "Tapioca (Kappa)", category: "Fresh Produce 🍅" },
-        { id: "kv_kaya", name: "Raw Banana (Kaya)", category: "Fresh Produce 🍅" },
-        { id: "kv_mathanga", name: "Pumpkin (Mathanga)", category: "Fresh Produce 🍅" },
-        
-        { id: "kv_banana_chips", name: "Kaya Varuthathu (Banana Chips)", category: "Biscuits & Snacks 🍪" },
-        { id: "kv_sharkara", name: "Sharkara Varatti", category: "Biscuits & Snacks 🍪" },
-        { id: "kv_achappam", name: "Achappam", category: "Biscuits & Snacks 🍪" },
-        { id: "kv_unniyappam", name: "Unniyappam", category: "Biscuits & Snacks 🍪" },
-        { id: "kv_chakka_chips", name: "Jackfruit Chips", category: "Biscuits & Snacks 🍪" },
-        { id: "kv_rusk", name: "Rusk Pack", category: "Biscuits & Snacks 🍪" },
-        { id: "kv_marayoor_jaggery", name: "Marayoor Jaggery Drops", category: "Biscuits & Snacks 🍪" },
-
-        { id: "kv_milk", name: "Milk Packet", category: "Dairy & Breakfast 🥛" },
-        { id: "kv_curd", name: "Curd Pouch", category: "Dairy & Breakfast 🥛" },
-        { id: "kv_bread", name: "Bread White Slice", category: "Dairy & Breakfast 🥛" }
-    ];
-
-    // Data Load Sync Checks
-    let groceryItems = JSON.parse(localStorage.getItem('userCustomDataset')) || initialDataset;
+    let baseCSVItems = []; 
+    let userCustomItems = JSON.parse(localStorage.getItem('userCustomDataset')) || [];
     let cart = JSON.parse(localStorage.getItem('activeCartEngine')) || {};
     let itemUnits = JSON.parse(localStorage.getItem('activeItemUnits')) || {};
     let historyFrequency = JSON.parse(localStorage.getItem('megaGroceryHistory')) || {};
@@ -264,134 +131,172 @@
     let toastTimeout = null;
     let lastDeletedSnapshot = null;
 
-    // Slide Panels Execution Engine
+    // Standardized, flattened numeric item loop mapper
+    function getCombinedDataset() {
+        return [...userCustomItems, ...baseCSVItems];
+    }
+
+    function safeCSVParse(text) {
+        let lines = text.split('\n'); if (lines.length <= 1) return [];
+        let headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/^"|"$/g, ''));
+        let idIdx = headers.indexOf('id'), nameIdx = headers.indexOf('name'), catIdx = headers.indexOf('category');
+        
+        let items = [];
+        for (let i = 1; i < lines.length; i++) {
+            let line = lines[i].trim(); if (!line) continue;
+            let row = [], inQuotes = false, cell = "";
+            for (let j = 0; j < line.length; j++) {
+                let char = line[j];
+                if (char === '"') inQuotes = !inQuotes;
+                else if (char === ',' && !inQuotes) { row.push(cell.trim()); cell = ""; }
+                else cell += char;
+            }
+            row.push(cell.trim());
+            let name = row[nameIdx]?.replace(/^"|"$/g, '');
+            if (name && name !== 'nan') {
+                items.push({
+                    id: String(row[idIdx] || 'csv_' + i).trim(), // Maps standard numbers cleanly as tracking string IDs
+                    name: name,
+                    category: row[catIdx]?.replace(/^"|"$/g, '') || 'Staples & Dals 🌾'
+                });
+            }
+        }
+        return items;
+    }
+
+    async function loadMasterDataset() {
+        try {
+            const response = await fetch('my_groceries.csv');
+            if (!response.ok) throw new Error();
+            const data = await response.text();
+            baseCSVItems = safeCSVParse(data);
+            renderItems();
+        } catch (e) {
+            document.getElementById('grocery-container').innerHTML = `<div class="loading" style="color:#ef4444;">❌ Error loading my_groceries.csv. Ensure it is uploaded to GitHub!</div>`;
+        }
+    }
+
     function openPanel(id) {
         document.getElementById('overlay-bg').style.display = 'block';
-        setTimeout(() => document.getElementById('overlay-bg').style.opacity = '1', 10);
-        
         const targetPanel = document.getElementById(id);
         targetPanel.style.display = 'flex';
-        setTimeout(() => targetPanel.style.bottom = '0', 50);
-        
+        setTimeout(() => targetPanel.style.bottom = '0', 10);
         if (id === 'panel-cart') renderCartDrawer();
         if (id === 'panel-manage') renderCRUDDatabaseList();
     }
 
     function closeAllPanels() {
-        document.getElementById('overlay-bg').style.opacity = '0';
-        setTimeout(() => document.getElementById('overlay-bg').style.display = 'none', 200);
-        
-        const panels = document.querySelectorAll('.panel');
-        panels.forEach(p => p.style.bottom = '-100%');
+        document.getElementById('overlay-bg').style.display = 'none';
+        document.querySelectorAll('.panel').forEach(p => p.style.bottom = '-100%');
     }
 
-    // Dynamic database CRUD adjustments
     function createNewItem() {
         const nameInput = document.getElementById('add-name');
         const catSelect = document.getElementById('add-cat');
         const val = nameInput.value.trim();
+        if (!val) return;
         
-        if (!val) { alert("Please input a valid item label!"); return; }
-        
-        const newObj = {
-            id: 'custom_' + Date.now(),
-            name: val,
-            category: catSelect.value
-        };
-        
-        groceryItems.unshift(newObj);
-        localStorage.setItem('userCustomDataset', JSON.stringify(groceryItems));
+        // Custom items use dynamic timestamps which will never conflict with Excel 1, 2, 3 entries
+        const newObj = { id: String(Date.now()), name: val, category: catSelect.value };
+        userCustomItems.unshift(newObj);
+        localStorage.setItem('userCustomDataset', JSON.stringify(userCustomItems));
         nameInput.value = "";
-        
         renderCRUDDatabaseList();
         renderItems();
     }
 
     function removeMasterItem(id) {
-        if(confirm("Are you sure you want to permanently delete this item from the entire app dictionary?")) {
-            groceryItems = groceryItems.filter(item => item.id !== id);
-            localStorage.setItem('userCustomDataset', JSON.stringify(groceryItems));
-            delete cart[id];
-            saveCartState();
-            renderCRUDDatabaseList();
-            renderItems();
+        if(confirm("Delete this item?")) {
+            userCustomItems = userCustomItems.filter(item => item.id !== id);
+            baseCSVItems = baseCSVItems.filter(item => item.id !== id);
+            localStorage.setItem('userCustomDataset', JSON.stringify(userCustomItems));
+            delete cart[id]; saveCartState();
+            renderCRUDDatabaseList(); renderItems();
         }
     }
 
+    function startInlineEdit(id) {
+        document.getElementById(`crud-view-${id}`).style.display = 'none';
+        document.getElementById(`crud-edit-${id}`).style.display = 'flex';
+    }
+
+    function cancelInlineEdit(id) {
+        document.getElementById(`crud-view-${id}`).style.display = 'flex';
+        document.getElementById(`crud-edit-${id}`).style.display = 'none';
+    }
+
+    function saveInlineEdit(id) {
+        const newName = document.getElementById(`edit-input-${id}`).value.trim();
+        const newCat = document.getElementById(`edit-cat-${id}`).value;
+        if (!newName) return;
+
+        let customIdx = userCustomItems.findIndex(item => item.id === id);
+        if (customIdx !== -1) {
+            userCustomItems[customIdx].name = newName;
+            userCustomItems[customIdx].category = newCat;
+            localStorage.setItem('userCustomDataset', JSON.stringify(userCustomItems));
+        } else {
+            let baseIdx = baseCSVItems.findIndex(item => item.id === id);
+            if (baseIdx !== -1) {
+                baseCSVItems[baseIdx].name = newName;
+                baseCSVItems[baseIdx].category = newCat;
+            }
+        }
+        renderCRUDDatabaseList(); renderItems();
+    }
+
     function renderCRUDDatabaseList() {
-        const target = document.getElementById('crud-items-list');
-        target.innerHTML = '';
-        groceryItems.forEach(item => {
-            const row = document.createElement('div');
-            row.className = 'crud-list-item';
+        const target = document.getElementById('crud-items-list'); target.innerHTML = '';
+        getCombinedDataset().forEach(item => {
+            const row = document.createElement('div'); row.className = 'crud-list-item'; row.style.flexDirection = 'column'; row.style.alignItems = 'stretch';
             row.innerHTML = `
-                <div>
-                    <div style="font-size:0.9rem; font-weight:600;">${item.name}</div>
-                    <div style="font-size:0.7rem; color:#9ca3af;">${item.category}</div>
+                <div id="crud-view-${item.id}" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div><div style="font-size:0.9rem; font-weight:600;">${item.name}</div><div style="font-size:0.7rem; color:#9ca3af;">${item.category}</div></div>
+                    <div style="display: flex; gap: 12px;"><button onclick="startInlineEdit('${item.id}')" style="background:none; border:none; color:#34d399; cursor:pointer;">✏️</button><button onclick="removeMasterItem('${item.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer;">🗑️</button></div>
                 </div>
-                <button onclick="removeMasterItem('${item.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1rem;">🗑️</button>
-            `;
+                <div id="crud-edit-${item.id}" style="display: none; flex-direction: column; gap: 8px; width: 100%;">
+                    <input type="text" id="edit-input-${item.id}" value="${item.name}" style="width:100%; padding:8px; background:#0b0f19; border:1px solid #374151; color:white; border-radius:6px;">
+                    <select id="edit-cat-${item.id}" style="width:100%; padding:8px; background:#0b0f19; border:1px solid #374151; color:white; border-radius:6px;">
+                        <option value="Fresh Produce 🍅" ${item.category.includes('🍅')?'selected':''}>Fresh Produce 🍅</option>
+                        <option value="Staples & Dals 🌾" ${item.category.includes('🌾')?'selected':''}>Staples & Dals 🌾</option>
+                        <option value="Biscuits & Snacks 🍪" ${item.category.includes('🍪')?'selected':''}>Biscuits & Snacks 🍪</option>
+                        <option value="Dairy & Breakfast 🥛" ${item.category.includes('🥛')?'selected':''}>Dairy & Breakfast 🥛</option>
+                    </select>
+                    <div style="display: flex; gap: 8px; justify-content: flex-end;"><button onclick="cancelInlineEdit('${item.id}')" style="padding:6px 12px; background:#374151; border:none; color:white; border-radius:6px; font-size:0.8rem; cursor:pointer;">Cancel</button><button onclick="saveInlineEdit('${item.id}')" style="padding:6px 12px; background:#10b981; border:none; color:white; border-radius:6px; font-size:0.8rem; font-weight:bold; cursor:pointer;">Save</button></div>
+                </div>`;
             target.appendChild(row);
         });
     }
 
-    // UI Content Renderer
     function renderItems() {
-        const container = document.getElementById('grocery-container');
-        container.innerHTML = '';
+        const container = document.getElementById('grocery-container'); container.innerHTML = '';
         updateGlobalFooterBadge();
+        let allItems = getCombinedDataset();
 
-        // 1. Recommendation Query Check (Past Purchases Layer)
-        const frequentItems = groceryItems
-            .filter(item => historyFrequency[item.id] && historyFrequency[item.id] > 0)
-            .sort((a, b) => historyFrequency[b.id] - historyFrequency[a.id])
-            .slice(0, 4);
+        const frequentItems = allItems.filter(item => historyFrequency[item.id] > 0).sort((a, b) => historyFrequency[b.id] - historyFrequency[a.id]).slice(0, 4);
+        if (frequentItems.length > 0 && !searchQuery) { renderCategorySection("⭐️ Frequently Ordered", frequentItems, container); }
 
-        if (frequentItems.length > 0 && !searchQuery) {
-            renderCategorySection("⭐️ Frequently Ordered", frequentItems, container);
-        }
-
-        // 2. Active Main Filtering Loops
-        let matches = groceryItems;
+        let matches = allItems;
         if (searchQuery.length >= 2) {
-            matches = groceryItems.filter(item => item.name.toLowerCase().includes(searchQuery));
-            // Sorting Matches alphabetically
+            matches = allItems.filter(item => item.name.toLowerCase().includes(searchQuery));
             matches.sort((a, b) => a.name.localeCompare(b.name));
         }
-
         const categories = [...new Set(matches.map(item => item.category))];
-        categories.forEach(category => {
-            const itemsInCat = matches.filter(item => item.category === category);
-            renderCategorySection(category, itemsInCat, container);
-        });
-
-        if (matches.length === 0) {
-            container.innerHTML = '<div class="loading">No local items found.</div>';
-        }
+        categories.forEach(category => { renderCategorySection(category, matches.filter(item => item.category === category), container); });
+        if (matches.length === 0) container.innerHTML = '<div class="loading">No items found.</div>';
     }
 
     function renderCategorySection(title, items, targetContainer) {
-        const catDiv = document.createElement('div');
-        catDiv.className = 'category-section';
-        catDiv.innerHTML = `<h2>${title}</h2>`;
-        
+        const catDiv = document.createElement('div'); catDiv.className = 'category-section'; catDiv.innerHTML = `<h2>${title}</h2>`;
         items.forEach(item => {
-            const qty = cart[item.id] || 0;
-            const selectedUnit = itemUnits[item.id] || "Qty";
-            
-            const itemRow = document.createElement('div');
-            itemRow.className = 'item-row';
+            const qty = cart[item.id] || 0, selectedUnit = itemUnits[item.id] || "Qty";
+            const itemRow = document.createElement('div'); itemRow.className = 'item-row';
             itemRow.innerHTML = `
-                <div class="item-details">
-                    <div class="item-title-block">
-                        <span class="item-name">${item.name}</span>
-                        <span class="item-meta">${item.category.split(' ')[0]} Entry</span>
-                    </div>
-                </div>
+                <div class="item-details"><div class="item-title-block"><span class="item-name">${item.name}</span></div></div>
                 <div class="controls-wrapper">
                     <select class="unit-selector" onchange="changeUnit('${item.id}', this.value)">
-                        <option value="Qty" ${selectedUnit === 'Qty' ? 'selected' : ''}>Qty</option>
-                        <option value="Kilos" ${selectedUnit === 'Kilos' ? 'selected' : ''}>Kg</option>
+                        <option value="Qty" ${selectedUnit==='Qty'?'selected':''}>Qty</option>
+                        <option value="Kilos" ${selectedUnit==='Kilos'?'selected':''}>Kg</option>
                     </select>
                     <div class="counter">
                         <button onclick="updateQty('${item.id}', -1)">-</button>
@@ -404,145 +309,68 @@
         targetContainer.appendChild(catDiv);
     }
 
-    // State Mutation Engines
     function updateQty(id, change) {
-        if (!cart[id]) cart[id] = 0;
-        cart[id] += change;
+        if (!cart[id]) cart[id] = 0; cart[id] += change;
         if (cart[id] <= 0) delete cart[id];
-        
-        saveCartState();
-        renderItems();
+        saveCartState(); renderItems();
         if (document.getElementById('panel-cart').style.display === 'flex') renderCartDrawer();
     }
 
-    function changeUnit(id, unit) {
-        itemUnits[id] = unit;
-        localStorage.setItem('activeItemUnits', JSON.stringify(itemUnits));
-        if (document.getElementById('panel-cart').style.display === 'flex') renderCartDrawer();
-    }
+    function changeUnit(id, unit) { itemUnits[id] = unit; localStorage.setItem('activeItemUnits', JSON.stringify(itemUnits)); }
+    function saveCartState() { localStorage.setItem('activeCartEngine', JSON.stringify(cart)); }
+    function filterItems() { searchQuery = document.getElementById('search-bar').value.toLowerCase().trim(); renderItems(); }
+    function updateGlobalFooterBadge() { const total = Object.values(cart).reduce((a, b) => a + b, 0); const badge = document.getElementById('global-badge'); if (total > 0) { badge.innerText = total; badge.style.display = 'inline-block'; } else { badge.style.display = 'none'; } }
 
-    function saveCartState() {
-        localStorage.setItem('activeCartEngine', JSON.stringify(cart));
-    }
-
-    function filterItems() {
-        searchQuery = document.getElementById('search-bar').value.toLowerCase().trim();
-        renderItems();
-    }
-
-    function updateGlobalFooterBadge() {
-        const total = Object.values(cart).reduce((a, b) => a + b, 0);
-        const badge = document.getElementById('global-badge');
-        if (total > 0) {
-            badge.innerText = total;
-            badge.style.display = 'inline-block';
-        } else {
-            badge.style.display = 'none';
-        }
-    }
-
-    // Modal View Cart Content Builder
     function renderCartDrawer() {
-        const wrapper = document.getElementById('cart-list-render');
-        wrapper.innerHTML = '';
-        let hasItems = false;
-
-        groceryItems.forEach(item => {
+        const wrapper = document.getElementById('cart-list-render'); wrapper.innerHTML = ''; let hasItems = false;
+        getCombinedDataset().forEach(item => {
             if (cart[item.id]) {
-                hasItems = true;
-                const unit = itemUnits[item.id] || "Qty";
-                const row = document.createElement('div');
-                row.className = 'cart-item-row';
+                hasItems = true; const unit = itemUnits[item.id] || "Qty";
+                const row = document.createElement('div'); row.className = 'cart-item-row';
                 row.innerHTML = `
-                    <div>
-                        <div style="font-weight:600;">${item.name}</div>
-                        <div style="font-size:0.75rem; color:#9ca3af;">Setting: ${unit} metric</div>
-                    </div>
+                    <div><div style="font-weight:600;">${item.name}</div><div style="font-size:0.75rem; color:#9ca3af;">Setting: ${unit}</div></div>
                     <div style="display:flex; align-items:center;">
-                        <div class="counter">
-                            <button onclick="updateQty('${item.id}', -1)">-</button>
-                            <span class="qty-count">${cart[item.id]}</span>
-                            <button class="plus" onclick="updateQty('${item.id}', 1)">+</button>
-                        </div>
+                        <div class="counter"><button onclick="updateQty('${item.id}', -1)">-</button><span class="qty-count">${cart[item.id]}</span><button class="plus" onclick="updateQty('${item.id}', 1)">+</button></div>
                         <button class="remove-cart-item" onclick="forceRemoveCartItem('${item.id}')">🗑️</button>
-                    </div>
-                `;
+                    </div>`;
                 wrapper.appendChild(row);
             }
         });
+        if (!hasItems) wrapper.innerHTML = '<div style="text-align:center; padding:30px; color:#6b7280;">Your cart is empty.</div>';
+    }
 
-        if (!hasItems) {
-            wrapper.innerHTML = '<div style="text-align:center; padding:30px; color:#6b7280;">Your cart is empty. Add elements below!</div>';
+    function forceRemoveCartItem(id) {
+        lastDeletedSnapshot = { id: id, qty: cart[id] };
+        delete cart[id]; saveCartState(); renderCartDrawer(); renderItems();
+        const toast = document.getElementById('toast'); toast.style.display = "flex";
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => { toast.style.display = "none"; lastDeletedSnapshot = null; }, 4000);
+    }
+
+    function triggerUndo() {
+        if (lastDeletedSnapshot) {
+            cart[lastDeletedSnapshot.id] = lastDeletedSnapshot.qty; saveCartState(); renderItems(); renderCartDrawer();
+            document.getElementById('toast').style.display = "none"; lastDeletedSnapshot = null;
         }
     }
 
-    // Force Remove + 4s Undo Logic Engine Block
-function forceRemoveCartItem(id) {
-    lastDeletedSnapshot = { id: id, qty: cart[id] };
-
-    delete cart[id];
-    saveCartState();
-    renderCartDrawer();
-    renderItems();
-
-    // Force show the popup instantly
-    const toast = document.getElementById('toast');
-    document.getElementById('toast-msg').innerText = "Item removed from cart";
-    toast.style.display = "flex"; 
-
-    // Hard timer to completely hide it after 4 seconds
-    clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => {
-        toast.style.display = "none";
-        lastDeletedSnapshot = null;
-    }, 4000); 
-}
-
-function triggerUndo() {
-    if (lastDeletedSnapshot) {
-        cart[lastDeletedSnapshot.id] = lastDeletedSnapshot.qty;
-        saveCartState();
-        renderItems();
-        renderCartDrawer();
-        
-        // Kill the popup instantly on click
-        document.getElementById('toast').style.display = "none";
-        lastDeletedSnapshot = null;
-    }
-}
-
-    // WhatsApp String Formatter Delivery Engine
     function sendToWhatsApp() {
-        let orderText = "📝 *GROCERY LIST ORDER*\n-------------------------\n";
-        let hasItems = false;
-
-        groceryItems.forEach(item => {
+        let orderText = "📝 *GROCERY LIST ORDER*\n-------------------------\n"; let hasItems = false;
+        getCombinedDataset().forEach(item => {
             if (cart[item.id]) {
-                const unit = itemUnits[item.id] || "Qty";
-                const displayUnit = unit === "Kilos" ? "Kg" : "Nos";
-                orderText += `▪️ *${item.name}* → *${cart[item.id]} ${displayUnit}*\n`;
-                hasItems = true;
-                
-                // Track frequency metrics for past purchases loop
+                const unit = itemUnits[item.id] || "Qty"; const displayUnit = unit === "Kilos" ? "Kg" : "Nos";
+                orderText += `✅ *${item.name}* → *${cart[item.id]} ${displayUnit}*\n`; hasItems = true;
                 historyFrequency[item.id] = (historyFrequency[item.id] || 0) + 1;
             }
         });
-
-        if (!hasItems) { alert("Please build your cart list before checking out!"); return; }
-        orderText += "-------------------------\nPlease process this delivery checklist. Thanks!";
-
+        if (!hasItems) return;
+        orderText += "-------------------------\nPlease process this checklist. Thanks!";
         localStorage.setItem('megaGroceryHistory', JSON.stringify(historyFrequency));
         window.open(`https://wa.me/?text=${encodeURIComponent(orderText)}`, '_blank');
-        
-        // Wipe local cart cache upon checkout submission
-        cart = {};
-        saveCartState();
-        renderItems();
-        closeAllPanels();
+        cart = {}; saveCartState(); renderItems(); closeAllPanels();
     }
 
-    // Initialize View Layer execution
-    renderItems();
+    loadMasterDataset();
 </script>
 </body>
 </html>
